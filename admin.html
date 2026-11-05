@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Store Admin</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin">
+  <!-- Connect -->
+  <section class="connect" id="connect" hidden>
+    <form class="connect-card" id="connectForm">
+      <div class="connect-icon">S</div>
+      <h1>Store Admin</h1>
+      <p class="muted">Sign in with a GitHub token to edit your shop. Changes go live about a minute after you publish.</p>
+
+      <label class="field"><span>Repository</span><input name="repo" required spellcheck="false" autocomplete="off" /></label>
+      <label class="field"><span>GitHub token</span><input name="token" type="password" required spellcheck="false" autocomplete="off" placeholder="github_pat_…" /></label>
+      <label class="check"><input type="checkbox" name="remember" checked /> Remember on this device</label>
+      <p class="error" id="connectError" hidden></p>
+      <button class="btn btn-primary btn-block" type="submit" id="connectBtn">Sign in</button>
+
+      <details class="help">
+        <summary>How do I get a token?</summary>
+        <ol>
+          <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → New fine-grained token</a>.</li>
+          <li>Name it “Store admin” and pick an expiry.</li>
+          <li>Under <b>Repository access</b>, choose <b>Only select repositories</b> and pick your store repo.</li>
+          <li>Under <b>Permissions → Repository permissions</b>, set <b>Contents</b> to <b>Read and write</b>.</li>
+          <li>Click <b>Generate token</b>, copy it and paste it here.</li>
+        </ol>
+        <p class="muted">The token stays in this browser and is only sent to GitHub. It can only change this one repository.</p>
+      </details>
+    </form>
+  </section>
+
+  <!-- Editor -->
+  <div class="shell" id="shell" hidden>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <span class="brand" id="adminBrand">Admin</span>
+        <span class="status" id="status"></span>
+        <div class="topbar-actions">
+          <a class="btn-link small" id="viewSite" target="_blank" rel="noopener">View site <span class="chev">›</span></a>
+          <button class="btn btn-sm btn-primary" id="publishBtn" disabled>Publish</button>
+          <button class="icon-btn" id="menuBtn" aria-label="More">⋯</button>
+          <div class="menu" id="menu" hidden>
+            <button data-act="download">Download store.json</button>
+            <button data-act="discard">Discard unpublished changes</button>
+            <button data-act="signout">Sign out</button>
+          </div>
+        </div>
+      </div>
+      <nav class="tabsbar" id="tabsbar">
+        <button data-tab="kits" aria-selected="true">Kits</button>
+        <button data-tab="store">Hero &amp; store</button>
+        <button data-tab="faq">FAQ</button>
+        <button data-tab="reviews">Vouches</button>
+        <button data-tab="perks">Perks</button>
+      </nav>
+    </header>
+    <main class="view" id="view"></main>
+  </div>
+
+  <!-- Publish progress -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-card" id="modalCard"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="icons.js"></script>
+  <script src="shared.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

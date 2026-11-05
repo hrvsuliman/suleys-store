@@ -14,7 +14,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <script src="config.js"></script>
 </head>
 <body>
   <header class="nav" id="nav">
@@ -40,6 +39,9 @@
         <a class="btn-link" data-discord target="_blank" rel="noopener">Join the Discord <span class="chev">›</span></a>
       </div>
     </section>
+
+    <!-- Hero banner (set in admin) -->
+    <section class="banner-wrap" id="heroBanner" hidden></section>
 
     <!-- Featured kit -->
     <section class="featured-wrap">
@@ -123,7 +125,7 @@
   <footer class="footer">
     <div class="container">
       <p>All purchases are handled on Discord. Kits are digital files for use in your own Roblox games. Reselling or sharing them isn't allowed.</p>
-      <p>Suley's Store isn't affiliated with or endorsed by Roblox Corporation.</p>
+      <p><span data-bind="name"></span> isn't affiliated with or endorsed by Roblox Corporation.</p>
       <div class="foot-row">
         <span>Copyright © <span id="year"></span> <span data-bind="name"></span>. All rights reserved.</span>
         <nav><a href="#kits">Kits</a><a href="#how">How to buy</a><a href="#faq">FAQ</a><a data-discord target="_blank" rel="noopener">Discord</a></nav>
@@ -138,6 +140,8 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="icons.js"></script>
+  <script src="shared.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
