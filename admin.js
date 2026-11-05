@@ -130,6 +130,92 @@
     pending.set(path, { blob, url: URL.createObjectURL(blob) });
     return path;
   };
+  /* ── Big videos: compress in the browser before uploading ── */
+  const BIG_VIDEO = 40 * 1024 * 1024;
+  const TARGET_BYTES = 45 * 1024 * 1024;
+  const mb = (n) => `${(n / 1048576).toFixed(n > 100 * 1048576 ? 0 : 1)} MB`;
+  const askBigVideo = (f) =>
+    new Promise((resolve) => {
+      const tooBig = f.size > MAX_BYTES;
+      modal(`<h2>That video is ${mb(f.size)}</h2>
+        <p>${tooBig ? "GitHub doesn't accept files over 100 MB, so it has to be made smaller first." : "It'll work, but it's heavy for visitors to load."} I can compress it right here to 720p, and it usually ends up under ${mb(TARGET_BYTES)} (short clips get much smaller). It takes about as long as the video itself, and you need to keep this tab open while it runs.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-sm btn-primary" data-v="compress">Compress it</button>
+          ${tooBig ? "" : `<button class="btn btn-sm btn-ghost" data-v="original">Upload as is</button>`}
+          <button class="btn btn-sm btn-ghost" data-v="cancel">Cancel</button>
+        </div>
+        <p class="muted" style="font-size:12.5px">For long videos a YouTube link is still the better choice. Paste it in the video field instead.</p>`);
+      $("#modalCard").onclick = (e) => {
+        const b = e.target.closest("[data-v]");
+        if (!b) return;
+        $("#modalCard").onclick = null;
+        resolve(b.dataset.v);
+      };
+    });
+  const pickRecorderType = () =>
+    ["video/mp4;codecs=avc1.42E01F,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"].find(
+      (t) => window.MediaRecorder && MediaRecorder.isTypeSupported(t)
+    );
+  // Plays the video once (muted for you, but the audio is still recorded), drawing it onto a 720p canvas
+  // and recording that with MediaRecorder at a bitrate that fits the target size.
+  const compressVideo = (file) =>
+    new Promise((resolve, reject) => {
+      const type = pickRecorderType();
+      if (!type) return reject(new Error("this browser can't record video, try Chrome or Edge"));
+      const url = URL.createObjectURL(file);
+      const v = document.createElement("video");
+      v.src = url;
+      v.playsInline = true;
+      v.preload = "auto";
+      let cancelled = false, timer = 0, ac = null, rec = null;
+      const cleanup = () => { clearInterval(timer); try { ac?.close(); } catch (e) {} v.pause(); v.removeAttribute("src"); v.load(); URL.revokeObjectURL(url); };
+      const fail = (msg) => { cleanup(); reject(new Error(msg)); };
+      v.onerror = () => fail("the browser can't read this video format");
+      v.onloadedmetadata = async () => {
+        const dur = v.duration;
+        if (!isFinite(dur) || dur <= 0) return fail("couldn't read the video length");
+        const scale = Math.min(1, 1280 / Math.max(v.videoWidth, v.videoHeight));
+        const w = Math.max(2, Math.round((v.videoWidth * scale) / 2) * 2), h = Math.max(2, Math.round((v.videoHeight * scale) / 2) * 2);
+        const audioBps = 128000;
+        const videoBps = Math.min(6000000, Math.max(900000, Math.floor((TARGET_BYTES * 8 * 0.92) / dur) - audioBps));
+        if (((videoBps + audioBps) * dur) / 8 > MAX_BYTES) return fail(`it's ${Math.round(dur / 60)} minutes long, which is too long to fit. Use YouTube for this one`);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        const stream = canvas.captureStream(30);
+        try {
+          ac = new AudioContext();
+          await ac.resume();
+          const src = ac.createMediaElementSource(v);
+          const dest = ac.createMediaStreamDestination();
+          src.connect(dest); // recorded, but not sent to your speakers
+          dest.stream.getAudioTracks().forEach((t) => stream.addTrack(t));
+        } catch (e) { /* no audio track, record video only */ }
+
+        const chunks = [];
+        rec = new MediaRecorder(stream, { mimeType: type, videoBitsPerSecond: videoBps, audioBitsPerSecond: audioBps });
+        rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+        rec.onstop = () => {
+          cleanup();
+          if (cancelled) return reject(new Error("cancelled"));
+          resolve({ blob: new Blob(chunks, { type: type.split(";")[0] }), ext: type.startsWith("video/mp4") ? "mp4" : "webm" });
+        };
+        modal(`<div class="spinner"></div><h2>Compressing video…</h2><p>Keep this tab open and in front. It plays through the video once, so it takes about ${Math.max(1, Math.round(dur / 60))} min.</p><div class="bar"><span id="vcBar"></span></div><p class="muted" id="vcText" style="font-size:13px">0%</p><button class="btn btn-sm btn-ghost" id="vcCancel">Cancel</button>`);
+        $("#vcCancel").onclick = () => { cancelled = true; rec.state !== "inactive" ? rec.stop() : (cleanup(), reject(new Error("cancelled"))); };
+        timer = setInterval(() => {
+          ctx.drawImage(v, 0, 0, w, h);
+          const p = Math.min(1, v.currentTime / dur);
+          const bar = $("#vcBar"), txt = $("#vcText");
+          if (bar) bar.style.width = `${(p * 100).toFixed(1)}%`;
+          if (txt) txt.textContent = `${Math.round(p * 100)}% · ${Math.round(v.currentTime)}s of ${Math.round(dur)}s`;
+        }, 1000 / 30);
+        v.onended = () => rec.state !== "inactive" && rec.stop();
+        rec.start(1000);
+        v.play().catch(() => fail("the video wouldn't play for compressing"));
+      };
+    });
+
   // kind: "image" | "video" | "image|video"
   const takeFiles = async (files, kind, opts) => {
     const out = [];
@@ -147,12 +233,27 @@
         toast(`${f.name} isn't a supported ${kind.replace("|", " or ")} file.`);
         continue;
       }
-      if (f.size > MAX_BYTES) {
-        toast(`${f.name} is over 95 MB. Upload it to YouTube and paste the link instead.`);
-        continue;
-      }
       if (isVid) {
-        if (f.size > 40 * 1024 * 1024) toast("Big video. It'll work, but a YouTube link loads faster for visitors.");
+        // GitHub refuses single files over 100 MB, and big videos load slowly anyway,
+        // so anything over 40 MB gets offered a compress step first.
+        if (f.size > BIG_VIDEO) {
+          const choice = await askBigVideo(f);
+          if (choice === "cancel") continue;
+          if (choice === "compress") {
+            try {
+              const small = await compressVideo(f);
+              if (small.blob.size > MAX_BYTES) { modal(""); toast("Still too big after compressing. Upload it to YouTube and paste the link instead."); continue; }
+              modal("");
+              toast(`Compressed ${mb(f.size)} → ${mb(small.blob.size)}.`);
+              out.push({ path: addFile(small.blob, small.ext, opts.prefix), type: "video" });
+            } catch (err) {
+              modal("");
+              if (err?.message !== "cancelled") toast(`Couldn't compress this one (${err?.message || "unknown error"}). Try a YouTube link instead.`);
+            }
+            continue;
+          }
+          modal("");
+        }
         out.push({ path: addFile(f, extOf(f) === "mov" ? "mov" : extOf(f), opts.prefix), type: "video" });
       } else {
         const { blob, ext } = await processImage(f, opts.max || 1920, opts.alpha);
@@ -422,7 +523,7 @@
             ${p.video ? mediaPreview(p.video, { rm: "video" }) : `
               <label class="field"><span>YouTube link</span><input data-yt placeholder="https://youtu.be/…" /></label>
               <div class="or">or</div>
-              ${dropZone("video", "MP4 or WebM, up to 95 MB.", "video/mp4,video/webm,video/quicktime", false)}`}
+              ${dropZone("video", "MP4 or WebM. Big videos get compressed for you.", "video/mp4,video/webm,video/quicktime", false)}`}
           </section>
 
           <section class="group">
@@ -541,7 +642,7 @@
         ${d.hero.banner ? mediaPreview(d.hero.banner, { rm: "banner" }) : `
           <label class="field"><span>YouTube link</span><input data-yt-banner placeholder="https://youtu.be/…" /></label>
           <div class="or">or</div>
-          ${dropZone("banner", "Image (2560 px wide is ideal) or MP4/WebM video, up to 95 MB.", "image/*,video/mp4,video/webm", false)}`}
+          ${dropZone("banner", "Image (2560 px wide is ideal) or MP4/WebM video (big ones get compressed for you).", "image/*,video/mp4,video/webm", false)}`}
       </section>
       <section class="group">
         <h2>Background music</h2>
