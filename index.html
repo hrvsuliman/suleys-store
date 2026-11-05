@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Suley's Store · Roblox Kits</title>
+  <meta name="description" content="Roblox kits with full source code. Buy on Discord and get your kit in minutes." />
+  <meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+  <meta property="og:title" content="Suley's Store · Roblox Kits" />
+  <meta property="og:description" content="Roblox kits with full source code. Buy on Discord and get your kit in minutes." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="config.js"></script>
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top" data-bind="name"></a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#kits">Kits</a>
+        <a href="#how">How to buy</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a class="nav-cta" data-discord target="_blank" rel="noopener">Join Discord</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero">
+      <p class="hero-eyebrow reveal">Roblox kits by <span>@<span data-bind="discord.username"></span></span></p>
+      <h1 class="hero-title" id="heroTitle"></h1>
+      <p class="hero-sub reveal" style="--d:.25s" data-bind="subtitle"></p>
+      <div class="hero-actions reveal" style="--d:.35s">
+        <a class="btn btn-primary" href="#kits">Browse kits</a>
+        <a class="btn-link" data-discord target="_blank" rel="noopener">Join the Discord <span class="chev">›</span></a>
+      </div>
+    </section>
+
+    <!-- Featured kit -->
+    <section class="featured-wrap">
+      <article class="featured" id="featured"></article>
+    </section>
+
+    <!-- Kits -->
+    <section class="band" id="kits">
+      <div class="container">
+        <h2 class="headline reveal">All kits. <span class="dim">Systems, UI, maps and scripts.</span></h2>
+        <div class="tabs reveal" id="tabs" role="tablist" aria-label="Filter kits"></div>
+        <div class="grid" id="grid"></div>
+      </div>
+    </section>
+
+    <!-- How to buy -->
+    <section class="section" id="how">
+      <div class="container">
+        <h2 class="headline reveal">How buying works. <span class="dim">There's no checkout. Everything happens on Discord.</span></h2>
+        <ol class="steps">
+          <li class="reveal">
+            <span class="step-n">1</span>
+            <h3>Join the server</h3>
+            <p>See previews, updates and other buyers' vouches before you decide.</p>
+            <a class="btn-link" data-discord target="_blank" rel="noopener">Join the Discord <span class="chev">›</span></a>
+          </li>
+          <li class="reveal" style="--d:.1s">
+            <span class="step-n">2</span>
+            <h3>Open a ticket or DM me</h3>
+            <p>Tell me which kit you want. You can also message <b>@<span data-bind="discord.username"></span></b> directly.</p>
+            <a class="btn-link" data-dm target="_blank" rel="noopener">Message me <span class="chev">›</span></a>
+          </li>
+          <li class="reveal" style="--d:.2s">
+            <span class="step-n">3</span>
+            <h3>Pay and get your kit</h3>
+            <p>Once you've paid, I send you the files and setup guide.</p>
+            <p class="pay" id="pay"></p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Perks -->
+    <section class="band">
+      <div class="container">
+        <h2 class="headline reveal">Why buy here. <span class="dim">Everything you need to ship.</span></h2>
+        <div class="perks" id="perks"></div>
+      </div>
+    </section>
+
+    <!-- Vouches (hidden until reviews are added in config.js) -->
+    <section class="section" id="reviews" hidden>
+      <div class="container">
+        <h2 class="headline reveal">Vouches. <span class="dim">From people who bought kits.</span></h2>
+        <div class="reviews" id="reviewList"></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+      <div class="container narrow">
+        <h2 class="headline reveal">Questions.</h2>
+        <div class="faq" id="faqList"></div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta" id="join">
+      <div class="container cta-inner">
+        <h2 class="reveal">Ready when you are.</h2>
+        <p class="reveal" style="--d:.1s">Join the Discord to buy a kit, ask a question or see what's coming next.</p>
+        <p class="cta-meta reveal" style="--d:.15s" id="ctaMeta" hidden></p>
+        <div class="hero-actions reveal" style="--d:.2s">
+          <a class="btn btn-primary" data-discord target="_blank" rel="noopener">Join the Discord</a>
+          <a class="btn-link light" data-dm target="_blank" rel="noopener">DM @<span data-bind="discord.username"></span> <span class="chev">›</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>All purchases are handled on Discord. Kits are digital files for use in your own Roblox games. Reselling or sharing them isn't allowed.</p>
+      <p>Suley's Store isn't affiliated with or endorsed by Roblox Corporation.</p>
+      <div class="foot-row">
+        <span>Copyright © <span id="year"></span> <span data-bind="name"></span>. All rights reserved.</span>
+        <nav><a href="#kits">Kits</a><a href="#how">How to buy</a><a href="#faq">FAQ</a><a data-discord target="_blank" rel="noopener">Discord</a></nav>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Kit detail -->
+  <div class="sheet-wrap" id="sheetWrap" aria-hidden="true">
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" id="sheet"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
