@@ -755,3 +755,12 @@ img { display: block; max-width: 100%; }
 .love-big:active { transform: scale(0.95); }
 .love-particle { position: fixed; z-index: 300; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(225, 29, 72, 0.35)); }
 @media (max-width: 734px) { .love-btn { padding: 0 9px 0 6px; } }
+
+
+/* ── Unique visitors ───────────────────────────────────── */
+.views-pill { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px 0 10px; border-radius: 999px; font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-2); box-shadow: inset 0 0 0 1px var(--border); background: #fff; cursor: default; }
+.views-pill .ico, .foot-views .ico { width: 17px; height: 17px; }
+.views-pill[hidden], .foot-views[hidden] { display: none; }
+.foot-views { display: flex; align-items: center; gap: 6px; }
+.foot-views [data-views] { font-weight: 600; color: var(--text); }
+@media (max-width: 900px) { .views-pill { display: none; } }

@@ -640,16 +640,36 @@
       });
     })();
 
-    /* ── Send love: one global counter shared by every visitor (stored on abacus.jasoncameron.dev) ── */
+    /* ── Shared counters live on abacus.jasoncameron.dev (GitHub Pages can't store anything) ──
+       Only the real site writes to the real counters, so local testing never inflates them. */
+    const API = "https://abacus.jasoncameron.dev";
+    const NS = /\.github\.io$/.test(location.hostname) ? "suleys-store" : "suleys-store-dev";
+    const shortNum = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M" : n >= 1e4 ? (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k" : n.toLocaleString("en-US"));
+
+    /* ── Unique visitors: each browser is counted once, refreshing doesn't add more ── */
+    (() => {
+      const els = $$("[data-views]");
+      if (!els.length) return;
+      $$(".eye-ico").forEach((el) => (el.innerHTML = I.icon("eye")));
+      let counted = false;
+      try { counted = localStorage.getItem("visited") === "1"; } catch (e) {}
+      fetch(`${API}/${counted ? "get" : "hit"}/${NS}/visitors`)
+        .then((r) => (r.ok ? r.json() : { value: 0 }))
+        .then((d) => {
+          if (!counted) { try { localStorage.setItem("visited", "1"); } catch (e) {} }
+          els.forEach((el) => (el.textContent = shortNum(d.value || 0)));
+        })
+        .catch(() => $$(".views-pill, .foot-views").forEach((el) => (el.hidden = true)));
+    })();
+
+    /* ── Send love: one global counter shared by every visitor ── */
     (() => {
       const btns = $$("[data-love]");
       if (!btns.length) return;
-      const API = "https://abacus.jasoncameron.dev";
-      const NS = "suleys-store", KEY = "love";
+      const KEY = "love";
       const DAILY_LIMIT = 30; // per visitor, so one person can't spam the number
       let count = null;
-      const short = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M" : n >= 1e4 ? (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k" : n.toLocaleString("en-US"));
-      const render = () => $$("[data-love-count]").forEach((el) => (el.textContent = count == null ? "…" : short(count)));
+      const render = () => $$("[data-love-count]").forEach((el) => (el.textContent = count == null ? "…" : shortNum(count)));
       fetch(`${API}/get/${NS}/${KEY}`)
         .then((r) => (r.ok ? r.json() : { value: 0 }))
         .then((d) => { count = Math.max(count || 0, d.value || 0); render(); })

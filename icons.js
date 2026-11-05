@@ -4,6 +4,7 @@
 window.ICONS = (() => {
   const paths = {
     search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
     check: '<path d="m5 12.5 4.5 4.5L19 7"/>',
     close: '<path d="M6 6l12 12M18 6 6 18"/>',
     down: '<path d="m6 9 6 6 6-6"/>',
