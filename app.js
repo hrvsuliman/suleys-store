@@ -492,23 +492,28 @@
       const audio = new Audio();
       audio.src = M.src;
       audio.preload = "none";
-      audio.loop = !end;
+      audio.loop = false; // looping is done by hand so every restart fades out and back in
+      const FADE_IN = 4000, FADE_OUT = 3000;
       audio.volume = 0;
       let wanted = true;
       try { wanted = localStorage.getItem("music") !== "off"; } catch (e) {}
-      let fadeRaf = 0, ducked = false, started = false, looping = false;
+      let fadeTimer = 0, ducked = false, started = false, looping = false;
       const isOn = () => btn.classList.contains("on");
       const level = () => target * (ducked ? 0.35 : 1);
-      // eased volume fade
+      // Eased volume fade. Uses a timer (not requestAnimationFrame) so it keeps going in background tabs.
       const fadeTo = (v, ms, done) => {
-        cancelAnimationFrame(fadeRaf);
+        clearInterval(fadeTimer);
         const from = audio.volume, t0 = performance.now();
-        const step = (t) => {
-          const k = Math.min(1, (t - t0) / ms);
+        fadeTimer = setInterval(() => {
+          const k = Math.min(1, (performance.now() - t0) / ms);
           audio.volume = Math.min(1, Math.max(0, from + (v - from) * (k * k * (3 - 2 * k))));
-          if (k < 1) fadeRaf = requestAnimationFrame(step); else done?.();
-        };
-        fadeRaf = requestAnimationFrame(step);
+          if (k >= 1) { clearInterval(fadeTimer); done?.(); }
+        }, 30);
+      };
+      // Jumping to the loop start only works once the file's metadata has loaded
+      const seekStart = () => {
+        const go = () => { try { audio.currentTime = start; } catch (e) {} };
+        if (audio.readyState >= 1) go(); else audio.addEventListener("loadedmetadata", go, { once: true });
       };
       const setUI = (on) => {
         btn.classList.toggle("on", on);
@@ -516,10 +521,10 @@
         btn.setAttribute("aria-label", on ? "Turn music off" : "Turn music on");
       };
       const play = () => {
-        if (!started) { audio.currentTime = start; started = true; }
-        audio.play().then(() => { setUI(true); fadeTo(level(), 2500); }).catch(() => setUI(false));
+        if (!started) { started = true; seekStart(); }
+        audio.play().then(() => { setUI(true); fadeTo(level(), FADE_IN); }).catch(() => setUI(false));
       };
-      const stop = () => { setUI(false); fadeTo(0, 700, () => audio.pause()); };
+      const stop = () => { setUI(false); fadeTo(0, 1500, () => audio.pause()); };
       setUI(false);
 
       btn.addEventListener("click", () => {
@@ -537,16 +542,19 @@
       addEventListener("pointerdown", kick);
       addEventListener("keydown", kick);
 
-      // Loop only the chosen part, with a fade at the seam
-      if (end) audio.addEventListener("timeupdate", () => {
-        if (looping || audio.currentTime < end - 1.2) return;
+      // Fade out before the end (of the song, or of the chosen part), jump back and fade in again
+      const endAt = () => end || audio.duration || Infinity;
+      const restart = () => {
+        seekStart();
+        looping = false;
+        if (isOn()) audio.play().then(() => fadeTo(level(), FADE_IN)).catch(() => {});
+      };
+      audio.addEventListener("timeupdate", () => {
+        if (looping || audio.paused || audio.currentTime < endAt() - FADE_OUT / 1000) return;
         looping = true;
-        fadeTo(0, 1000, () => {
-          audio.currentTime = start;
-          looping = false;
-          if (isOn()) fadeTo(level(), 1500);
-        });
+        fadeTo(0, FADE_OUT, restart);
       });
+      audio.addEventListener("ended", () => { audio.volume = 0; restart(); });
       // Quieter while a kit page is open (so kit videos come through), silent when the tab is hidden
       new MutationObserver(() => {
         ducked = $("#sheetWrap").classList.contains("open");

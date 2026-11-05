@@ -724,7 +724,10 @@
       modal(`<div class="done-mark">${ic("check")}</div><h2>Published</h2><p>Your site updates in about a minute. Refresh it if you don't see the changes yet.</p><div style="display:flex;gap:10px;justify-content:center"><a class="btn btn-primary btn-sm" href="${esc(siteUrl())}" target="_blank" rel="noopener">View site</a><button class="btn btn-sm btn-secondary" data-close-modal>Keep editing</button></div>`);
     } catch (err) {
       console.error(err);
-      modal(`<h2>Couldn't publish</h2><p>${esc(friendly(err, true))}</p><p class="muted" style="font-size:13px">Nothing was lost. Your edits are still here.</p><button class="btn btn-sm btn-primary" data-close-modal>OK</button>`);
+      const fix = err.status === 403 || err.status === 404
+        ? `<ol class="fix-steps"><li>Keep this tab open.</li><li>Open <a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener">your GitHub tokens</a> and click this token.</li><li>Repository access: <b>Only select repositories → ${esc(cfg.repo.split("/")[1])}</b>.</li><li>Permissions → <b>Contents: Read and write</b>, then save.</li><li>Come back and press Publish again.</li></ol>`
+        : "";
+      modal(`<h2>Couldn't publish</h2><p>${esc(friendly(err, true))}</p>${fix}<p class="muted" style="font-size:12.5px">GitHub said: ${esc(err.status || "")} ${esc(err.message || "")}</p><p class="muted" style="font-size:13px">Nothing was lost. Your edits are still here.</p><button class="btn btn-sm btn-primary" data-close-modal>OK</button>`);
     }
   });
   $("#modal").addEventListener("click", (e) => { if (e.target.closest("[data-close-modal]")) modal(""); });

@@ -175,3 +175,5 @@ body.admin { background: var(--band); min-height: 100vh; }
 .music-row .remove { position: static; flex: none; }
 .music-marks { display: flex; gap: 8px; flex-wrap: wrap; }
 .field input[type="range"] { padding: 0; height: 28px; background: none; accent-color: var(--blue); }
+.fix-steps { text-align: left; margin: 0; padding: 12px 14px 12px 32px; border-radius: 12px; background: var(--band); font-size: 14px; color: var(--text-2); display: grid; gap: 4px; }
+.fix-steps a { color: var(--link); }
