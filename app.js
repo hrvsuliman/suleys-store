@@ -50,8 +50,29 @@
     /* ── Hero title ──────────────────────────────────── */
     const title = $("#heroTitle");
     title.setAttribute("aria-label", S.tagline);
-    title.innerHTML = S.tagline.split(" ").map((w, i) => `<span class="w" aria-hidden="true"><span style="--i:${i}">${esc(w)}</span></span>`).join(" ");
+    const words = S.tagline.split(" ");
+    title.innerHTML = words.map((w, i) => `<span class="w${i >= words.length - 2 ? " hot" : ""}" aria-hidden="true"><span style="--i:${i}">${esc(w)}</span></span>`).join(" ");
     requestAnimationFrame(() => requestAnimationFrame(() => title.classList.add("in")));
+
+    /* ── Floating stickers around the hero ───────────── */
+    // [left%, top%, size px, depth, delay s]
+    const slots = [[8, 18, 110, 1.2, 0], [84, 14, 96, 0.8, 1.1], [3, 58, 78, 0.6, 0.6], [90, 52, 120, 1.4, 1.8], [18, 80, 64, 0.5, 2.4], [74, 80, 70, 0.7, 0.3], [30, 14, 54, 0.4, 1.5], [66, 12, 58, 0.5, 2.1]];
+    const heroStickers = S.hero?.stickers?.length ? S.hero.stickers : ["ball", "robux", "smile", "bolt", "flame", "trophy", "music", "star"];
+    const floaters = $("#floaters");
+    floaters.innerHTML = heroStickers.slice(0, slots.length).map((n, i) => {
+      const [x, y, s, depth, delay] = slots[i];
+      return `<span class="floater" data-depth="${depth}" style="left:${x}%;top:${y}%;--s:${s}px;--delay:${delay}s;--rot:${(i % 2 ? 1 : -1) * (8 + i * 3)}deg">${I.sticker(n)}</span>`;
+    }).join("");
+    const floatEls = $$(".floater", floaters);
+    if (!reduce) {
+      let mx = 0, my = 0;
+      const place = () => floatEls.forEach((el) => {
+        const d = +el.dataset.depth;
+        el.style.translate = `${mx * d * 30}px ${my * d * 30 - scrollY * d * 0.25}px`;
+      });
+      addEventListener("pointermove", (e) => { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; requestAnimationFrame(place); }, { passive: true });
+      addEventListener("scroll", () => requestAnimationFrame(place), { passive: true });
+    }
 
     /* ── Hero banner (image, video file or YouTube) ──── */
     const scalers = [];
@@ -75,6 +96,7 @@
     const F = S.hero?.featured === "" ? null : byId[S.hero?.featured] || products[0];
     const featured = $("#featured");
     if (F) {
+      featured.setAttribute("style", K.vars(F));
       featured.innerHTML = `
         <div class="feat-copy reveal">
           <p class="feat-label">${esc(F.badge || "Featured")}</p>
@@ -174,7 +196,7 @@
       const stage = items.length
         ? `<div class="stage" id="stage">${K.mediaHTML(items[0], p)}</div>` +
           (items.length > 1 ? `<div class="thumbs" role="tablist">${items.map((m, i) => `<button class="thumb" role="tab" aria-selected="${i === 0}" aria-label="Media ${i + 1}" data-i="${i}">${K.thumbHTML(m, p)}</button>`).join("")}</div>` : "")
-        : `<div class="sheet-art" style="${K.vars(p)}">${K.appIcon(p)}</div>`;
+        : `<div class="sheet-art" style="${K.vars(p)}">${K.scene(p)}</div>`;
       sheet.innerHTML = `
         <button class="close" data-close aria-label="Close">${I.icon("close")}</button>
         <div class="sheet-media">${stage}</div>
@@ -187,13 +209,14 @@
               <p class="sheet-price">${K.priceHTML(p)}</p>
             </div>
           </div>
+          ${p.options?.length ? `<div><p class="sub">Ways to pay</p>${K.optionsHTML(p)}</div>` : ""}
           <p class="desc">${esc(p.description || p.short)}</p>
           <div class="sheet-cols">
             ${p.features?.length ? `<div><p class="sub">Features</p><ul class="list">${p.features.map((f) => `<li>${I.icon("check")}${esc(f)}</li>`).join("")}</ul></div>` : ""}
             ${p.includes?.length ? `<div><p class="sub">What you get</p><ul class="list">${p.includes.map((f) => `<li>${I.icon("check")}${esc(f)}</li>`).join("")}</ul></div>` : ""}
           </div>
           <div class="buy">
-            <p class="buy-note">Kits are sold on Discord. Join the server and open a ticket, or message <b>@${esc(S.discord.username)}</b>.</p>
+            <p class="buy-note">Buy it on Discord. Open a ticket or DM <b>${esc(S.discord.username)}</b>.</p>
             <a class="btn btn-primary btn-block" href="${esc(invite)}" target="_blank" rel="noopener">${I.discord}Buy on Discord · ${esc(K.priceText(p))}</a>
             <div class="buy-links">
               <a class="btn-link" href="${esc(dmUrl)}" data-dm target="_blank" rel="noopener">DM @${esc(S.discord.username)} <span class="chev">›</span></a>
@@ -202,7 +225,7 @@
           </div>
         </div>`;
       $("[data-copy]", sheet).addEventListener("click", async () => {
-        if (await copy(`Hi! I'd like to buy ${p.name} (${K.priceText(p)}) from ${S.name}.`)) toast("Order message copied. Paste it in Discord.");
+        if (await copy(`Yo! I want ${p.name} (${K.priceText(p)}).`)) toast("Copied! Paste it in Discord.");
       });
       const thumbs = $(".thumbs", sheet);
       if (thumbs) thumbs.addEventListener("click", (e) => {

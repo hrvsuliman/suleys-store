@@ -40,5 +40,78 @@ window.ICONS = (() => {
     '<svg class="ico rbx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.6 20.2 7.3v9.4L12 21.4 3.8 16.7V7.3z"/><rect x="9.2" y="9.2" width="5.6" height="5.6" rx=".8"/></svg>';
   const discord =
     '<svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.44.86-.6 1.25a18.3 18.3 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.7 19.7 0 0 0-4.88 1.52.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .09-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.1 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1 0-.12l.37-.3a.07.07 0 0 1 .08-.01c3.93 1.8 8.180 1.8 12.06 0a.07.07 0 0 1 .08.01l.37.3a.08.08 0 0 1 0 .12c-.6.35-1.22.65-1.88.9a.08.08 0 0 0-.04.1c.36.7.77 1.37 1.23 2a.08.08 0 0 0 .08.03 19.8 19.8 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.670-3.55-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.33-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.15-1.09-2.15-2.42s.95-2.42 2.150-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42z"/></svg>';
-  return { paths, builtIn, icon, robux, discord };
+  /* ── Stickers: full-colour floating icons (original artwork) ── */
+  let uid = 0;
+  const pent = (cx, cy, r, rot = -90) =>
+    Array.from({ length: 5 }, (_, i) => {
+      const a = ((rot + i * 72) * Math.PI) / 180;
+      return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`;
+    }).join(" ");
+  const grad = (id, a, b, radial) =>
+    radial
+      ? `<radialGradient id="${id}" cx="35%" cy="28%" r="80%"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>`
+      : `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
+  const ink = "#0b0d1a";
+  const stickerDefs = {
+    ball: (g) => {
+      const outer = [0, 1, 2, 3, 4].map((i) => {
+        const a = ((-90 + i * 72) * Math.PI) / 180;
+        return [50 + 44 * Math.cos(a), 50 + 44 * Math.sin(a)];
+      });
+      return `<defs>${grad(g, "#ffffff", "#c9d2e6", true)}<clipPath id="${g}c"><circle cx="50" cy="50" r="44"/></clipPath></defs>
+        <circle cx="50" cy="50" r="44" fill="url(#${g})"/>
+        <g clip-path="url(#${g}c)" fill="${ink}" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round">
+          <polygon points="${pent(50, 50, 15)}"/>
+          ${outer.map(([x, y], i) => `<line x1="${(50 + 15 * Math.cos(((-90 + i * 72) * Math.PI) / 180)).toFixed(1)}" y1="${(50 + 15 * Math.sin(((-90 + i * 72) * Math.PI) / 180)).toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/><polygon points="${pent(x, y, 12, -90 + i * 72 + 36)}"/>`).join("")}
+        </g>
+        <circle cx="50" cy="50" r="44" fill="none" stroke="${ink}" stroke-width="4"/>
+        <ellipse cx="36" cy="28" rx="12" ry="6" fill="#fff" opacity=".7" transform="rotate(-30 36 28)"/>`;
+    },
+    robux: (g) => `<defs>${grad(g, "#ffe27a", "#f59e0b")}</defs>
+        <polygon points="50,5 89,27.5 89,72.5 50,95 11,72.5 11,27.5" fill="url(#${g})" stroke="#6b3f00" stroke-width="5" stroke-linejoin="round"/>
+        <rect x="36" y="36" width="28" height="28" rx="5" fill="#6b3f00"/>
+        <polyline points="20,32 50,14 80,32" fill="none" stroke="#fff6cc" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>`,
+    smile: (g) => `<defs>${grad(g, "#ffe066", "#f7a400", true)}</defs>
+        <circle cx="50" cy="50" r="44" fill="url(#${g})" stroke="${ink}" stroke-width="4"/>
+        <path d="M18 40 Q20 36 26 36 H44 Q48 36 50 39 Q52 36 56 36 H74 Q80 36 82 40 L79 52 Q76 58 68 58 H60 Q54 58 52 50 H48 Q46 58 40 58 H32 Q24 58 21 52 Z" fill="${ink}"/>
+        <path d="M60 41 l8 0" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+        <path d="M34 70 Q50 82 66 70" fill="none" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>`,
+    bolt: (g) => `<defs>${grad(g, "#fff176", "#ff9f0a")}</defs>
+        <path d="M58 4 18 56 H46 L38 96 82 40 H54 Z" fill="url(#${g})" stroke="${ink}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M54 16 32 48" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".7"/>`,
+    flame: (g) => `<defs>${grad(g, "#ffd60a", "#ff375f")}${grad(g + "i", "#fff7ae", "#ffb020")}</defs>
+        <path d="M50 4 C60 22 82 34 82 60 C82 82 66 96 50 96 C34 96 18 82 18 62 C18 46 28 38 34 26 C36 38 42 42 46 44 C46 30 44 18 50 4 Z" fill="url(#${g})" stroke="${ink}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M50 52 C56 62 66 66 66 78 C66 88 58 94 50 94 C42 94 34 88 34 79 C34 70 42 66 44 58 C46 64 50 64 50 52 Z" fill="url(#${g}i)"/>`,
+    trophy: (g) => `<defs>${grad(g, "#ffe27a", "#e0a100")}</defs>
+        <path d="M28 10 H72 V36 C72 52 62 62 50 62 C38 62 28 52 28 36 Z" fill="url(#${g})" stroke="${ink}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M28 18 H12 C12 34 20 42 30 44 M72 18 H88 C88 34 80 42 70 44" fill="none" stroke="${ink}" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M44 62 V74 H56 V62 M32 90 H68 V80 Q68 74 62 74 H38 Q32 74 32 80 Z" fill="url(#${g})" stroke="${ink}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M38 18 V34" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".7"/>`,
+    music: (g) => `<defs>${grad(g, "#ff8ad8", "#a855f7")}</defs>
+        <path d="M36 72 V20 L84 8 V60" fill="none" stroke="${ink}" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M36 72 V20 L84 8 V60" fill="none" stroke="url(#${g})" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+        <ellipse cx="25" cy="76" rx="15" ry="12" fill="url(#${g})" stroke="${ink}" stroke-width="4.5"/>
+        <ellipse cx="73" cy="64" rx="15" ry="12" fill="url(#${g})" stroke="${ink}" stroke-width="4.5"/>`,
+    star: (g) => `<defs>${grad(g, "#fff176", "#ffb300")}</defs>
+        <polygon points="${Array.from({ length: 10 }, (_, i) => { const r = i % 2 ? 19 : 46; const a = ((-90 + i * 36) * Math.PI) / 180; return `${(50 + r * Math.cos(a)).toFixed(1)},${(53 + r * Math.sin(a)).toFixed(1)}`; }).join(" ")}" fill="url(#${g})" stroke="${ink}" stroke-width="4.5" stroke-linejoin="round"/>`,
+    crown: (g) => `<defs>${grad(g, "#ffe27a", "#f59e0b")}</defs>
+        <path d="M10 30 30 52 50 18 70 52 90 30 82 80 H18 Z" fill="url(#${g})" stroke="${ink}" stroke-width="4.5" stroke-linejoin="round"/>
+        <circle cx="50" cy="62" r="7" fill="#ff375f" stroke="${ink}" stroke-width="3"/>`,
+    heart: (g) => `<defs>${grad(g, "#ff6b9d", "#e11d48")}</defs>
+        <path d="M50 88 C20 66 8 50 8 34 C8 20 18 10 31 10 C40 10 46 15 50 22 C54 15 60 10 69 10 C82 10 92 20 92 34 C92 50 80 66 50 88 Z" fill="url(#${g})" stroke="${ink}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M24 26 Q28 20 34 20" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity=".7"/>`,
+    controller: (g) => `<defs>${grad(g, "#7cc4ff", "#3b5bfd")}</defs>
+        <path d="M26 28 H74 C86 28 94 40 94 58 C94 72 88 80 80 80 C72 80 68 70 62 66 H38 C32 70 28 80 20 80 C12 80 6 72 6 58 C6 40 14 28 26 28 Z" fill="url(#${g})" stroke="${ink}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M26 46 V60 M19 53 H33" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="70" cy="48" r="5" fill="#ffd60a" stroke="${ink}" stroke-width="2.5"/><circle cx="78" cy="58" r="5" fill="#ff375f" stroke="${ink}" stroke-width="2.5"/>`,
+  };
+  const stickerNames = Object.keys(stickerDefs);
+  const sticker = (name) => {
+    const def = stickerDefs[name];
+    if (!def) return "";
+    const g = `stk${++uid}`;
+    return `<svg class="stk" viewBox="0 0 100 100" aria-hidden="true">${def(g)}</svg>`;
+  };
+
+  return { paths, builtIn, icon, robux, discord, sticker, stickerNames };
 })();

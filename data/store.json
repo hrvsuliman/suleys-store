@@ -1,10 +1,20 @@
 {
   "name": "Suley's Store",
-  "tagline": "Roblox kits that are ready for your game.",
-  "subtitle": "Systems, UI and maps with full source code. You buy on Discord and get the kit in minutes.",
+  "tagline": "Roblox kits that go hard.",
+  "subtitle": "Made by me. Grab one on Discord and it’s yours in minutes.",
   "hero": {
     "banner": "",
-    "featured": "football-engine"
+    "featured": "bluelock-kit-v1",
+    "stickers": [
+      "ball",
+      "robux",
+      "smile",
+      "bolt",
+      "flame",
+      "trophy",
+      "music",
+      "star"
+    ]
   },
   "discord": {
     "invite": "https://discord.gg/3KuKZCT6Xp",
@@ -13,297 +23,148 @@
   },
   "payments": [
     "Robux",
-    "PayPal",
-    "Gift cards"
+    "Gamepass",
+    "Cash"
   ],
   "perks": [
     {
       "icon": "code",
-      "title": "Full source code",
-      "text": "Every script is readable and commented, so you can change anything."
+      "title": "Full source",
+      "text": "Every script is yours to edit."
     },
     {
       "icon": "refresh",
       "title": "Free updates",
-      "text": "Fixes and new features are posted in the Discord at no extra cost."
+      "text": "V2 drops? You get it."
     },
     {
       "icon": "book",
-      "title": "Setup guide",
-      "text": "Step-by-step instructions get each kit running in Studio."
+      "title": "Easy setup",
+      "text": "Drop it in Studio and go."
     },
     {
       "icon": "chat",
-      "title": "Help on Discord",
-      "text": "If you get stuck, ask me and I'll help you set it up."
+      "title": "I got you",
+      "text": "Stuck? Hit me up on Discord."
     }
   ],
   "products": [
     {
-      "id": "football-engine",
-      "name": "Football Engine",
-      "category": "Systems",
-      "robux": 2500,
-      "oldRobux": 3500,
-      "badge": "Best seller",
-      "short": "Full football gameplay: ball physics, tackles, keepers and matches.",
-      "description": "Everything you need to launch a football game. Server-authoritative ball physics, tackling, shooting with power and curve, goalkeeper AI and a complete match flow with timers and scoring.",
+      "id": "bluelock-kit-v1",
+      "name": "Bluelock Kit V1",
+      "category": "Football",
+      "robux": 4000,
+      "oldRobux": null,
+      "badge": "New",
+      "short": "Everything you need to start your own Bluelock game.",
+      "description": "My Bluelock-style football kit. Drop it in Studio, tweak it, and you’ve got the base for your own Bluelock game.",
       "features": [
-        "Server-side ball physics",
-        "Shoot, pass, tackle, dribble",
-        "Goalkeeper AI",
-        "Match timer & scoreboard",
-        "Mobile + console controls"
+        "Ball system",
+        "Shooting & passing",
+        "Abilities",
+        "Ready to edit",
+        "Full support",
+        "Free updates till V2"
       ],
       "includes": [
         "Place file",
-        "Source code",
-        "Setup guide"
+        "Source code"
       ],
       "icon": "ball",
       "iconImage": "",
       "colors": [
-        "#34d399",
-        "#3b82f6"
+        "#3b82f6",
+        "#1e3a8a"
       ],
       "cover": "",
       "gallery": [],
-      "video": ""
+      "video": "",
+      "options": [
+        {
+          "label": "Gamepass",
+          "price": 6000
+        },
+        {
+          "label": "Cash",
+          "price": "$30"
+        }
+      ],
+      "stickers": [
+        "ball",
+        "bolt",
+        "flame",
+        "trophy"
+      ]
     },
     {
-      "id": "combat-framework",
-      "name": "Combat Framework",
-      "category": "Systems",
+      "id": "emote-bar-v1",
+      "name": "Emote Bar V1",
+      "category": "UI",
       "robux": 2000,
       "oldRobux": null,
-      "badge": "Popular",
-      "short": "Hitboxes, combos, blocking and stuns — smooth and exploit-safe.",
-      "description": "A modular melee combat system with raycast hitboxes, combo chains, blocking, parrying and stun states. Hook in your own animations and VFX in minutes.",
+      "badge": "New",
+      "short": "Full emote framework so players can vibe in your game.",
+      "description": "Full emote framework for your game. Players open the bar, pick an emote, done. Easy to add your own emotes. Full support, and free updates until the next version drops.",
       "features": [
-        "Raycast hitboxes",
-        "Combo chains",
-        "Block & parry",
-        "Stun / ragdoll states",
-        "VFX & sound hooks"
+        "Full framework",
+        "Clean emote UI",
+        "Works on mobile",
+        "Add your own emotes",
+        "Full support",
+        "Free updates till V2"
       ],
       "includes": [
         "Model",
-        "Source code",
-        "Animation pack"
-      ],
-      "icon": "sword",
-      "iconImage": "",
-      "colors": [
-        "#fb7185",
-        "#a855f7"
-      ],
-      "cover": "",
-      "gallery": [],
-      "video": ""
-    },
-    {
-      "id": "glass-ui",
-      "name": "Glass UI Kit",
-      "category": "UI",
-      "robux": 1200,
-      "oldRobux": null,
-      "badge": "New",
-      "short": "40+ clean, animated UI components with a frosted-glass look.",
-      "description": "A polished UI library for Roblox: shop menus, inventories, settings, notifications, buttons and more. Fully tweened, scales to every device.",
-      "features": [
-        "40+ components",
-        "Tweened animations",
-        "Mobile-ready scaling",
-        "Light & dark themes",
-        "Easy colour theming"
-      ],
-      "includes": [
-        "UI models",
-        "Module scripts",
-        "Figma file"
-      ],
-      "icon": "layers",
-      "iconImage": "",
-      "colors": [
-        "#a78bfa",
-        "#60a5fa"
-      ],
-      "cover": "",
-      "gallery": [],
-      "video": ""
-    },
-    {
-      "id": "simulator-starter",
-      "name": "Simulator Starter",
-      "category": "Systems",
-      "robux": 1800,
-      "oldRobux": null,
-      "badge": "",
-      "short": "Pets, eggs, rebirths and saving — the full simulator loop.",
-      "description": "Start your simulator with the core loop already done: clicking, currencies, pets with eggs and rarities, rebirths and safe DataStore saving.",
-      "features": [
-        "Pets & egg hatching",
-        "Rarities & equip slots",
-        "Rebirth system",
-        "Session-locked saving",
-        "Gamepass hooks"
-      ],
-      "includes": [
-        "Place file",
-        "Source code",
-        "Setup guide"
+        "Source code"
       ],
       "icon": "sparkles",
       "iconImage": "",
       "colors": [
-        "#fbbf24",
-        "#f472b6"
+        "#f472b6",
+        "#8b5cf6"
       ],
       "cover": "",
       "gallery": [],
-      "video": ""
-    },
-    {
-      "id": "lobby-matchmaking",
-      "name": "Lobby & Matchmaking",
-      "category": "Systems",
-      "robux": 1500,
-      "oldRobux": null,
-      "badge": "",
-      "short": "Queues, parties and teleports into reserved servers.",
-      "description": "A drop-in lobby with party invites, queue pads, skill-free or ranked matchmaking and safe teleports into reserved servers.",
-      "features": [
-        "Party system",
-        "Queue pads & UI",
-        "Reserved server teleports",
-        "Rejoin handling"
+      "video": "",
+      "options": [
+        {
+          "label": "Gamepass",
+          "price": 3000
+        }
       ],
-      "includes": [
-        "Place file",
-        "Source code"
-      ],
-      "icon": "users",
-      "iconImage": "",
-      "colors": [
-        "#22d3ee",
-        "#6366f1"
-      ],
-      "cover": "",
-      "gallery": [],
-      "video": ""
-    },
-    {
-      "id": "tycoon-kit",
-      "name": "Tycoon Kit",
-      "category": "Systems",
-      "robux": 1400,
-      "oldRobux": null,
-      "badge": "",
-      "short": "Plots, droppers, buttons and upgrades with saving.",
-      "description": "A clean, data-driven tycoon base. Claim plots, buy buttons, run droppers and upgrades — all saved between sessions.",
-      "features": [
-        "Plot claiming",
-        "Button & dropper system",
-        "Upgrades",
-        "Data saving"
-      ],
-      "includes": [
-        "Place file",
-        "Source code"
-      ],
-      "icon": "building",
-      "iconImage": "",
-      "colors": [
-        "#f59e0b",
-        "#ef4444"
-      ],
-      "cover": "",
-      "gallery": [],
-      "video": ""
-    },
-    {
-      "id": "stadium-pack",
-      "name": "Stadium Map Pack",
-      "category": "Maps",
-      "robux": 1000,
-      "oldRobux": null,
-      "badge": "",
-      "short": "Three optimised, low-poly stadiums ready for matches.",
-      "description": "Three stylised stadiums built for performance, with spawn points, goals and camera spots already set up.",
-      "features": [
-        "3 stadiums",
-        "Low part count",
-        "Lighting presets",
-        "Spawn & goal setup"
-      ],
-      "includes": [
-        "Map models"
-      ],
-      "icon": "map",
-      "iconImage": "",
-      "colors": [
-        "#4ade80",
-        "#14b8a6"
-      ],
-      "cover": "",
-      "gallery": [],
-      "video": ""
-    },
-    {
-      "id": "admin-suite",
-      "name": "Admin Suite",
-      "category": "Scripts",
-      "robux": 800,
-      "oldRobux": null,
-      "badge": "",
-      "short": "Commands, bans, logs and a slick admin panel.",
-      "description": "A lightweight admin system with a command bar, rank permissions, timed bans and a searchable log panel.",
-      "features": [
-        "Command bar",
-        "Rank permissions",
-        "Timed bans",
-        "Action logs"
-      ],
-      "includes": [
-        "Model",
-        "Source code"
-      ],
-      "icon": "shield",
-      "iconImage": "",
-      "colors": [
-        "#94a3b8",
-        "#6366f1"
-      ],
-      "cover": "",
-      "gallery": [],
-      "video": ""
+      "stickers": [
+        "smile",
+        "music",
+        "star",
+        "heart"
+      ]
     }
   ],
   "reviews": [],
   "faq": [
     {
-      "q": "How do I buy a kit?",
-      "a": "There's no checkout on this site. Join the Discord server and open a ticket, or DM me directly. Tell me which kit you want, pay, and you get it delivered right there."
+      "q": "How do I buy?",
+      "a": "Join the Discord and open a ticket, or just DM me. Pay, and I send you the kit."
     },
     {
       "q": "How do I pay?",
-      "a": "Robux, PayPal and gift cards are accepted. Ask in Discord if you want to use something else."
+      "a": "Robux, gamepass or cash. Each kit shows its prices."
     },
     {
       "q": "Do I get updates?",
-      "a": "Yes. Every kit comes with free updates — they're posted in the Discord server."
+      "a": "Yep, free. They drop in the Discord."
     },
     {
-      "q": "Do I need to know how to script?",
-      "a": "No. Every kit ships with a setup guide. If you get stuck, ask in Discord and I'll help."
+      "q": "Do I need to script?",
+      "a": "Nah. Setup is easy, and I’ll help if you get stuck."
     },
     {
-      "q": "Can I resell or leak kits?",
-      "a": "No. You can use kits in your own games, but reselling or sharing the files isn't allowed."
+      "q": "Can I resell it?",
+      "a": "No. Use it in your own games, but don’t leak or resell it."
     },
     {
       "q": "Refunds?",
-      "a": "Because kits are digital files, sales are final once delivered. If something doesn't work, I'll fix it."
+      "a": "Kits are files, so no refunds once sent. If something’s broken, I’ll fix it."
     }
   ]
 }

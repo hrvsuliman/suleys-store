@@ -81,7 +81,7 @@
     return d;
   };
   const fixKit = (p) => {
-    p.features ??= []; p.includes ??= []; p.gallery ??= [];
+    p.features ??= []; p.includes ??= []; p.gallery ??= []; p.options ??= []; p.stickers ??= [];
     p.colors ??= ["#60a5fa", "#6366f1"];
     p.icon ??= "box";
     for (const k of ["iconImage", "cover", "video", "badge", "category", "short", "description"]) p[k] ??= "";
@@ -361,6 +361,7 @@
               <label class="field"><span>Old price <span class="hint">(optional, shows crossed out)</span></span><input data-k="oldRobux" type="number" min="0" step="1" inputmode="numeric" value="${esc(p.oldRobux ?? "")}" /></label>
               <label class="field"><span>Label <span class="hint">(optional)</span></span><input data-k="badge" list="badges" value="${esc(p.badge)}" placeholder="New, Best seller…" /></label>
             </div>
+            <label class="field"><span>Other ways to pay <span class="hint">(one per line, like “Gamepass = 6000” or “Cash = $30”)</span></span><textarea data-k="options" rows="3">${esc((p.options || []).map((o) => `${o.label} = ${o.price}`).join("\n"))}</textarea></label>
             <label class="field"><span>Category</span><input data-k="category" list="cats" value="${esc(p.category)}" placeholder="Systems, UI, Maps…" /></label>
             <datalist id="cats">${cats.map((c) => `<option value="${esc(c)}">`).join("")}</datalist>
             <datalist id="badges"><option value="New"><option value="Best seller"><option value="Popular"><option value="Sale"><option value="Limited"></datalist>
@@ -382,6 +383,12 @@
                 <label>To <input type="color" data-color="1" value="${esc(p.colors[1])}" /></label>
                 <div class="swatches">${SWATCHES.map((s) => `<button type="button" data-sw="${s.join(",")}" style="--a:${s[0]};--b:${s[1]}" aria-label="Colour preset"></button>`).join("")}</div>
               </div>` : p.iconImage ? mediaPreview(p.iconImage, { square: true, rm: "iconImage" }) : dropZone("icon", "Square image, at least 512×512. PNG with transparency works.", "image/*", false)}
+          </section>
+
+          <section class="group">
+            <h2>Stickers</h2>
+            <p class="group-sub">Floating icons on the kit art (shown when there's no cover image). The first one you pick is the big one. Up to 4.</p>
+            ${stickerGrid(p.stickers, "stk")}
           </section>
 
           <section class="group">
@@ -430,6 +437,13 @@
         let v = el.value;
         if (k === "robux" || k === "oldRobux") v = v === "" ? (k === "robux" ? 0 : null) : Math.max(0, Math.round(+v));
         if (k === "features" || k === "includes") v = v.split("\n").map((s) => s.trim()).filter(Boolean);
+        if (k === "options")
+          v = v.split("\n").map((line) => {
+            const m = line.match(/^\s*(.+?)\s*[=:|]\s*(.+?)\s*$/);
+            if (!m) return null;
+            const num = m[2].replace(/[,\s]|robux|r\$/gi, "");
+            return { label: m[1], price: /^\d+$/.test(num) ? +num : m[2] };
+          }).filter(Boolean);
         p[k] = v;
         if (k === "name" && p.__new) {
           const old = p.id;
@@ -459,6 +473,7 @@
       if (d.mode) { ui.iconMode[p.id] = d.mode; if (d.mode === "builtin") p.iconImage = ""; renderKitEditor(); markDirty(); return; }
       if (d.iconPick) { p.icon = d.iconPick; p.iconImage = ""; $$("[data-icon-pick]").forEach((x) => x.setAttribute("aria-pressed", x === b)); preview(); markDirty(); return; }
       if (d.sw) { p.colors = d.sw.split(","); $$("[data-color]").forEach((x, i) => (x.value = p.colors[i])); preview(); markDirty(); return; }
+      if (d.stk) { toggleSticker(p.stickers, d.stk, 4); const y = scrollY; renderKitEditor(); scrollTo(0, y); markDirty(); return; }
       if (d.rm) { p[d.rm] = ""; renderKitEditor(); markDirty(); return; }
       if (d.galRm) { p.gallery.splice(+d.galRm, 1); renderKitEditor(); markDirty(); return; }
       if (d.galL) { const i = +d.galL; [p.gallery[i - 1], p.gallery[i]] = [p.gallery[i], p.gallery[i - 1]]; renderKitEditor(); markDirty(); return; }
@@ -481,6 +496,15 @@
     });
   };
 
+  const stickerGrid = (list, attr) =>
+    `<div class="sticker-grid">${I.stickerNames.map((n) => { const i = list.indexOf(n); return `<button type="button" data-${attr}="${n}" aria-pressed="${i > -1}" aria-label="${n}">${I.sticker(n)}${i > -1 ? `<span>${i + 1}</span>` : ""}</button>`; }).join("")}</div>`;
+  const toggleSticker = (list, n, max) => {
+    const i = list.indexOf(n);
+    if (i > -1) list.splice(i, 1);
+    else if (list.length < max) list.push(n);
+    else toast(`Max ${max}. Remove one first.`);
+  };
+
   /* Store & hero */
   const setPath = (obj, path, v) => { const ks = path.split("."); const last = ks.pop(); ks.reduce((o, k) => (o[k] ??= {}), obj)[last] = v; };
   const getPath = (obj, path) => path.split(".").reduce((o, k) => (o == null ? o : o[k]), obj);
@@ -497,6 +521,11 @@
         ${f("name", "Store name")}
         ${f("tagline", "Headline", { hint: "(the big text at the top)" })}
         ${f("subtitle", "Subtitle", { area: true })}
+      </section>
+      <section class="group">
+        <h2>Floating stickers</h2>
+        <p class="group-sub">The icons floating around the top of the site. Up to 8.</p>
+        ${stickerGrid((d.hero.stickers ??= []), "hstk")}
       </section>
       <section class="group">
         <h2>Hero banner</h2>
@@ -545,6 +574,8 @@
       }
     };
     view().onclick = (e) => {
+      const s = e.target.closest("[data-hstk]");
+      if (s) { toggleSticker(d.hero.stickers, s.dataset.hstk, 8); const y = scrollY; renderStore(); scrollTo(0, y); markDirty(); return; }
       const b = e.target.closest("[data-rm]");
       if (b) { d.hero.banner = ""; renderStore(); markDirty(); }
     };

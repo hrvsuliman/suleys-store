@@ -29,9 +29,15 @@
   </header>
 
   <main id="top">
+   <div class="stage">
+    <div class="stage-fx" aria-hidden="true">
+      <span class="glow g1"></span><span class="glow g2"></span><span class="glow g3"></span>
+      <div class="floaters" id="floaters"></div>
+      <span class="vignette"></span>
+    </div>
     <!-- Hero -->
     <section class="hero">
-      <p class="hero-eyebrow reveal">Roblox kits by <span>@<span data-bind="discord.username"></span></span></p>
+      <p class="hero-eyebrow reveal">kits by <span>@<span data-bind="discord.username"></span></span></p>
       <h1 class="hero-title" id="heroTitle"></h1>
       <p class="hero-sub reveal" style="--d:.25s" data-bind="subtitle"></p>
       <div class="hero-actions reveal" style="--d:.35s">
@@ -47,11 +53,12 @@
     <section class="featured-wrap">
       <article class="featured" id="featured"></article>
     </section>
+   </div>
 
     <!-- Kits -->
     <section class="band" id="kits">
       <div class="container">
-        <h2 class="headline reveal">All kits. <span class="dim">Systems, UI, maps and scripts.</span></h2>
+        <h2 class="headline reveal">The drops. <span class="dim">More coming soon.</span></h2>
         <div class="tabs reveal" id="tabs" role="tablist" aria-label="Filter kits"></div>
         <div class="grid" id="grid"></div>
       </div>
@@ -60,24 +67,24 @@
     <!-- How to buy -->
     <section class="section" id="how">
       <div class="container">
-        <h2 class="headline reveal">How buying works. <span class="dim">There's no checkout. Everything happens on Discord.</span></h2>
+        <h2 class="headline reveal">How to cop one. <span class="dim">All through Discord.</span></h2>
         <ol class="steps">
           <li class="reveal">
             <span class="step-n">1</span>
             <h3>Join the server</h3>
-            <p>See previews, updates and other buyers' vouches before you decide.</p>
+            <p>Check out previews and vouches.</p>
             <a class="btn-link" data-discord target="_blank" rel="noopener">Join the Discord <span class="chev">›</span></a>
           </li>
           <li class="reveal" style="--d:.1s">
             <span class="step-n">2</span>
             <h3>Open a ticket or DM me</h3>
-            <p>Tell me which kit you want. You can also message <b>@<span data-bind="discord.username"></span></b> directly.</p>
+            <p>Tell me which kit you want. My @ is <b><span data-bind="discord.username"></span></b>.</p>
             <a class="btn-link" data-dm target="_blank" rel="noopener">Message me <span class="chev">›</span></a>
           </li>
           <li class="reveal" style="--d:.2s">
             <span class="step-n">3</span>
-            <h3>Pay and get your kit</h3>
-            <p>Once you've paid, I send you the files and setup guide.</p>
+            <h3>Pay and it's yours</h3>
+            <p>I send you the kit right after.</p>
             <p class="pay" id="pay"></p>
           </li>
         </ol>
@@ -87,7 +94,7 @@
     <!-- Perks -->
     <section class="band">
       <div class="container">
-        <h2 class="headline reveal">Why buy here. <span class="dim">Everything you need to ship.</span></h2>
+        <h2 class="headline reveal">Why my kits. <span class="dim">No cap.</span></h2>
         <div class="perks" id="perks"></div>
       </div>
     </section>
@@ -95,7 +102,7 @@
     <!-- Vouches (hidden until reviews are added in config.js) -->
     <section class="section" id="reviews" hidden>
       <div class="container">
-        <h2 class="headline reveal">Vouches. <span class="dim">From people who bought kits.</span></h2>
+        <h2 class="headline reveal">Vouches. <span class="dim">Real ones.</span></h2>
         <div class="reviews" id="reviewList"></div>
       </div>
     </section>
@@ -103,7 +110,7 @@
     <!-- FAQ -->
     <section class="section" id="faq">
       <div class="container narrow">
-        <h2 class="headline reveal">Questions.</h2>
+        <h2 class="headline reveal">Got questions?</h2>
         <div class="faq" id="faqList"></div>
       </div>
     </section>
@@ -111,8 +118,8 @@
     <!-- CTA -->
     <section class="cta" id="join">
       <div class="container cta-inner">
-        <h2 class="reveal">Ready when you are.</h2>
-        <p class="reveal" style="--d:.1s">Join the Discord to buy a kit, ask a question or see what's coming next.</p>
+        <h2 class="reveal">Pull up to the Discord.</h2>
+        <p class="reveal" style="--d:.1s">Buy kits, ask stuff, see what's dropping next.</p>
         <p class="cta-meta reveal" style="--d:.15s" id="ctaMeta" hidden></p>
         <div class="hero-actions reveal" style="--d:.2s">
           <a class="btn btn-primary" data-discord target="_blank" rel="noopener">Join the Discord</a>
@@ -124,7 +131,7 @@
 
   <footer class="footer">
     <div class="container">
-      <p>All purchases are handled on Discord. Kits are digital files for use in your own Roblox games. Reselling or sharing them isn't allowed.</p>
+      <p>All sales go through Discord. Use kits in your own games, don't leak or resell them.</p>
       <p><span data-bind="name"></span> isn't affiliated with or endorsed by Roblox Corporation.</p>
       <div class="foot-row">
         <span>Copyright © <span id="year"></span> <span data-bind="name"></span>. All rights reserved.</span>

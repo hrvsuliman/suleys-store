@@ -12,6 +12,12 @@ window.KIT = (() => {
     `<span class="rbx-price">${I.robux}<span>${fmt(p.robux)}</span></span>` +
     (p.oldRobux ? `<s class="rbx-old">${fmt(p.oldRobux)}</s>` : "");
   const priceText = (p) => `${fmt(p.robux)} Robux`;
+  // Extra ways to pay, e.g. [{label:"Gamepass", price:6000}, {label:"Cash", price:"$30"}]
+  const optPrice = (v) => (typeof v === "number" ? `<span class="rbx-price">${I.robux}<span>${fmt(v)}</span></span>` : esc(v));
+  const optionsHTML = (p) =>
+    p.options?.length
+      ? `<ul class="pay-opts"><li><span>Robux</span>${optPrice(p.robux)}</li>${p.options.map((o) => `<li><span>${esc(o.label)}</span>${optPrice(o.price)}</li>`).join("")}</ul>`
+      : "";
 
   const vars = (p) => {
     const c = p.colors || ["#a1a1a6", "#6e6e73"];
@@ -21,7 +27,13 @@ window.KIT = (() => {
     p.iconImage
       ? `<div class="app app-img"><img src="${esc(src(p.iconImage))}" alt="" loading="lazy" /></div>`
       : `<div class="app">${I.icon(p.icon)}</div>`;
-  const coverOrIcon = (p) => (p.cover ? `<img class="cover" src="${esc(src(p.cover))}" alt="${esc(p.name)}" loading="lazy" />` : appIcon(p));
+  // Floating sticker scene: first sticker big in the middle, the rest orbit around it.
+  const scene = (p) => {
+    const s = (p.stickers || []).filter((n) => I.stickerNames.includes(n)).slice(0, 4);
+    if (!s.length) return appIcon(p);
+    return `<div class="scene">${s.map((n, i) => `<span class="fl fl${i}">${I.sticker(n)}</span>`).join("")}</div>`;
+  };
+  const coverOrIcon = (p) => (p.cover ? `<img class="cover" src="${esc(src(p.cover))}" alt="${esc(p.name)}" loading="lazy" />` : scene(p));
 
   const ytId = (url) => (String(url || "").match(/(?:youtu\.be\/|[?&]v=|embed\/|shorts\/)([\w-]{11})/) || [])[1] || null;
 
@@ -62,5 +74,5 @@ window.KIT = (() => {
       </div>
     </article>`;
 
-  return { esc, fmt, priceHTML, priceText, vars, appIcon, coverOrIcon, ytId, media, mediaHTML, thumbHTML, cardHTML, setResolver };
+  return { esc, fmt, priceHTML, priceText, optionsHTML, vars, appIcon, scene, coverOrIcon, ytId, media, mediaHTML, thumbHTML, cardHTML, setResolver };
 })();
