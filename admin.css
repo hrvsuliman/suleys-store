@@ -81,7 +81,7 @@ body.admin { background: var(--band); min-height: 100vh; }
 .preview { position: sticky; top: 120px; display: grid; gap: 10px; }
 .preview .label { font-size: 13px; font-weight: 600; color: var(--text-2); }
 .preview .card { cursor: default; }
-.preview .card.reveal { opacity: 1; transform: none; }
+.preview .card.reveal { opacity: 1; transform: none; filter: none; }
 .back { display: inline-flex; align-items: center; gap: 2px; color: var(--link); font-size: 15px; margin-bottom: 8px; }
 
 /* Icon picker */

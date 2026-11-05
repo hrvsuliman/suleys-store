@@ -61,7 +61,7 @@ window.KIT = (() => {
   };
 
   const cardHTML = (p, i = 0) => `
-    <article class="card reveal" tabindex="0" role="button" aria-label="${esc(p.name)}, ${esc(priceText(p))}" data-id="${esc(p.id)}" style="--d:${(i % 3) * 0.08}s;view-transition-name:kit-${esc(p.id)}">
+    <article class="card spot reveal" tabindex="0" role="button" aria-label="${esc(p.name)}, ${esc(priceText(p))}" data-id="${esc(p.id)}" style="--d:${(i % 3) * 0.08}s;view-transition-name:kit-${esc(p.id)}">
       <div class="card-art${p.cover ? " has-cover" : ""}" style="${vars(p)}">${coverOrIcon(p)}${p.video ? `<span class="has-video">${I.icon("play")} Video</span>` : ""}</div>
       <div class="card-body">
         <span class="card-label">${esc(p.badge || "")}</span>

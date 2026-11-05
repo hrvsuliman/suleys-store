@@ -14,6 +14,24 @@
       document.body.insertAdjacentHTML("afterbegin", '<p style="padding:20px;text-align:center">The store couldn\'t load. Refresh to try again.</p>');
     });
 
+  let lenis = null;
+  if (window.Lenis && !reduce) {
+    lenis = new window.Lenis({ lerp: 0.09, smoothWheel: true });
+    const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); };
+    requestAnimationFrame(raf);
+  }
+  // Smooth anchor jumps
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute("href");
+    const el = id === "#top" ? document.body : document.querySelector(id);
+    if (!el) return;
+    e.preventDefault();
+    if (lenis) lenis.scrollTo(id === "#top" ? 0 : el, { offset: -60, duration: 1.4 });
+    else el.scrollIntoView({ behavior: "smooth" });
+  });
+
   function start(S) {
     /* ── Text bindings & links ───────────────────────── */
     document.title = `${S.name} · Roblox Kits`;
@@ -64,6 +82,7 @@
       return `<span class="floater" data-depth="${depth}" style="left:${x}%;top:${y}%;--s:${s}px;--delay:${delay}s;--rot:${(i % 2 ? 1 : -1) * (8 + i * 3)}deg">${I.sticker(n)}</span>`;
     }).join("");
     const floatEls = $$(".floater", floaters);
+    floatEls.forEach((el) => { const d = +el.dataset.depth; el.classList.add(d < 0.6 ? "far" : d < 0.9 ? "mid" : "near"); });
     if (!reduce) {
       let mx = 0, my = 0;
       const place = () => floatEls.forEach((el) => {
@@ -240,7 +259,7 @@
 
     /* ── How to buy, perks, reviews, FAQ ─────────────── */
     $("#pay").textContent = S.payments?.length ? `Accepted: ${S.payments.join(", ")}.` : "";
-    $("#perks").innerHTML = (S.perks || []).map((k, i) => `<div class="perk reveal" style="--d:${i * 0.08}s">${I.icon(k.icon)}<h3>${esc(k.title)}</h3><p>${esc(k.text)}</p></div>`).join("");
+    $("#perks").innerHTML = (S.perks || []).map((k, i) => `<div class="perk spot reveal" style="--d:${i * 0.08}s">${I.icon(k.icon)}<h3>${esc(k.title)}</h3><p>${esc(k.text)}</p></div>`).join("");
     if (!S.perks?.length) $("#perks").closest("section").remove();
 
     if (S.reviews?.length) {
@@ -331,6 +350,7 @@
       wrap.classList.add("open");
       wrap.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
+      lenis?.stop();
       sheet.scrollTop = 0;
       setTimeout(() => $(".close", sheet).focus({ preventScroll: true }), 60);
       if (push) history.pushState({ kit: id }, "", `#kit-${id}`);
@@ -340,6 +360,7 @@
       wrap.classList.remove("open");
       wrap.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
+      lenis?.start();
       setTimeout(() => { if (!wrap.classList.contains("open")) sheet.innerHTML = ""; }, 400); // stops videos
       lastFocus?.focus?.({ preventScroll: true });
       if (!fromPop && location.hash.startsWith("#kit-")) history.replaceState(null, "", location.pathname + location.search);
@@ -389,11 +410,68 @@
     );
     $$(".reveal").forEach((el) => io.observe(el));
 
+    /* ── Headlines light up word by word as you scroll (Apple-style) ── */
+    const heads = $$(".headline").map((h) => {
+      h.classList.remove("reveal");
+      const wrap = (node) => {
+        [...node.childNodes].forEach((n) => {
+          if (n.nodeType === 3) {
+            const frag = document.createDocumentFragment();
+            n.textContent.split(/(\s+)/).forEach((t) => {
+              if (!t) return;
+              if (/^\s+$/.test(t)) frag.append(t);
+              else { const sp = document.createElement("span"); sp.className = "hw"; sp.textContent = t; frag.append(sp); }
+            });
+            n.replaceWith(frag);
+          } else if (n.nodeType === 1) wrap(n);
+        });
+      };
+      wrap(h);
+      return { h, words: $$(".hw", h) };
+    });
+    const lightHeads = () => heads.forEach(({ h, words }) => {
+      const r = h.getBoundingClientRect();
+      const f = Math.min(1, Math.max(0, (innerHeight * 0.88 - r.top) / (innerHeight * 0.4)));
+      const n = Math.round(f * words.length);
+      words.forEach((w, i) => w.classList.toggle("lit", i < n));
+    });
+
+    /* ── Spotlight that follows the cursor on cards ─────── */
+    document.addEventListener("pointermove", (e) => {
+      const el = e.target.closest?.(".spot");
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    }, { passive: true });
+
+    /* ── Magnetic buttons ───────────────────────────────── */
+    if (matchMedia("(hover: hover)").matches && !reduce) {
+      $$(".magnetic").forEach((b) => {
+        b.addEventListener("pointermove", (e) => {
+          const r = b.getBoundingClientRect();
+          b.style.translate = `${(e.clientX - r.left - r.width / 2) * 0.25}px ${(e.clientY - r.top - r.height / 2) * 0.35}px`;
+        });
+        b.addEventListener("pointerleave", () => (b.style.translate = ""));
+      });
+    }
+
+    /* ── Active nav link ────────────────────────────────── */
+    const navLinks = $$(".nav-links a");
+    const navSecs = navLinks.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+    const markNav = () => {
+      let cur = null;
+      navSecs.forEach((sec) => { if (sec.getBoundingClientRect().top < innerHeight * 0.4) cur = sec; });
+      navLinks.forEach((a) => a.classList.toggle("active", !!cur && a.getAttribute("href") === "#" + cur.id));
+    };
+
     /* ── Scroll: nav hairline + scale-in panels ──────── */
     const nav = $("#nav");
     let ticking = false;
     const onScroll = () => {
       nav.classList.toggle("scrolled", scrollY > 8);
+      lightHeads();
+      markNav();
       if (!reduce) scalers.forEach((el) => {
         const r = el.getBoundingClientRect();
         el.style.setProperty("--p", Math.min(1, Math.max(0, (innerHeight - r.top) / (innerHeight * 0.75))).toFixed(3));
