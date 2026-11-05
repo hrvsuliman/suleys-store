@@ -166,7 +166,7 @@
         </div>` : ""}`;
 
       const slideEls = $$(".slide", root), segEls = $$(".seg", root);
-      let cur = -1;
+      let cur = -1, elapsed = 0;
       const go = (n) => {
         n = (n + slides.length) % slides.length;
         if (n === cur) return;
@@ -189,16 +189,25 @@
           const id = yt.dataset.yt;
           yt.insertAdjacentHTML("beforeend", `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&rel=0&modestbranding=1&playsinline=1" title="${esc(slides[cur].p.name)} video" allow="autoplay; encrypted-media"></iframe>`);
         }
+        elapsed = 0;
         segEls.forEach((s, i) => {
           s.classList.toggle("done", i < cur);
-          s.classList.remove("on");
-          if (i === cur) { void s.offsetWidth; s.classList.add("on"); } // restart the fill animation
+          s.classList.toggle("on", i === cur);
+          s.style.setProperty("--prog", i < cur ? 1 : 0);
         });
       };
       go(0);
       if (slides.length < 2) return;
 
-      root.addEventListener("animationend", (e) => { if (e.target.parentElement?.classList.contains("on") && e.animationName === "segfill") go(cur + 1); });
+      // Timer in JS (not a CSS animation), so it works the same when the device has animations turned off
+      let last = performance.now();
+      setInterval(() => {
+        const now = performance.now();
+        if (!root.classList.contains("paused")) elapsed += now - last;
+        last = now;
+        segEls[cur]?.style.setProperty("--prog", Math.min(1, elapsed / SLIDE_MS).toFixed(4));
+        if (elapsed >= SLIDE_MS) go(cur + 1);
+      }, 100);
       root.addEventListener("click", (e) => {
         const b = e.target.closest("[data-go],[data-step]");
         if (!b) return;
@@ -522,7 +531,13 @@
       };
       const play = () => {
         if (!started) { started = true; seekStart(); }
-        audio.play().then(() => { setUI(true); fadeTo(level(), FADE_IN); }).catch(() => setUI(false));
+        audio.play().then(() => {
+          setUI(true);
+          fadeTo(level(), FADE_IN);
+          let seen = false;
+          try { seen = localStorage.getItem("musicHint") === "1"; localStorage.setItem("musicHint", "1"); } catch (e) {}
+          if (!seen) toast("Music's on. Tap “Music” in the top bar to turn it off.");
+        }).catch(() => setUI(false));
       };
       const stop = () => { setUI(false); fadeTo(0, 1500, () => audio.pause()); };
       setUI(false);
