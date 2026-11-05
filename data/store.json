@@ -55,7 +55,7 @@
       "oldRobux": null,
       "badge": "New",
       "short": "The base for your own Bluelock-style football game.",
-      "description": "This is the football system I use for Bluelock-style games. You get ball control, shooting, passing and abilities already working, so you can focus on building your game instead of the core mechanics. Everything is open source, I help you set it up, and you get free updates until V2 comes out.",
+      "description": "A complete football system for Blue Lock style Roblox games, \nwith ball control, shooting, passing and abilities already built in.\nill help you get it set up, and you'll receive free updates until V2 releases.",
       "features": [
         "Ball control and dribbling",
         "Shooting and passing",
@@ -65,8 +65,7 @@
         "Free updates until V2"
       ],
       "includes": [
-        "Place file",
-        "Source code"
+        "Place file"
       ],
       "icon": "red-ball",
       "iconImage": "",
@@ -84,7 +83,7 @@
       "options": [
         {
           "label": "Gamepass",
-          "price": 6000
+          "price": 4000
         },
         {
           "label": "Cash",
