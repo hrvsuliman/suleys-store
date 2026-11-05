@@ -32,6 +32,24 @@
     else el.scrollIntoView({ behavior: "smooth" });
   });
 
+  /* ── Video helpers (YouTube background embeds + muted autoplay) ── */
+  const ytCmd = (iframe, func) => { try { iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func, args: [] }), "*"); } catch (e) {} };
+  const ytSrc = (id) => `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&disablekb=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
+  // Builds a muted, looping background iframe and keeps nudging it to play (some browsers ignore autoplay the first time)
+  const ytIframe = (id, title, onReady) => {
+    const f = document.createElement("iframe");
+    f.src = ytSrc(id);
+    f.title = title;
+    f.allow = "autoplay; encrypted-media; picture-in-picture";
+    f.tabIndex = -1;
+    f.addEventListener("load", () => {
+      [0, 400, 1200].forEach((ms) => setTimeout(() => { ytCmd(f, "mute"); ytCmd(f, "playVideo"); }, ms));
+      setTimeout(() => onReady?.(), 700);
+    });
+    return f;
+  };
+  const playMuted = (v) => { v.muted = true; v.playsInline = true; const p = v.play(); if (p) p.catch(() => {}); };
+
   function start(S) {
     /* ── Text bindings & links ───────────────────────── */
     document.title = `${S.name} · Roblox Kits`;
@@ -183,11 +201,11 @@
         el.classList.add("on");
         el.setAttribute("aria-hidden", "false");
         const v = $("video", el);
-        if (v) { v.currentTime = 0; v.play().catch(() => {}); }
+        if (v) { v.currentTime = 0; playMuted(v); }
         const yt = $(".yt", el);
         if (yt && !$("iframe", yt)) {
           const id = yt.dataset.yt;
-          yt.insertAdjacentHTML("beforeend", `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&rel=0&modestbranding=1&playsinline=1" title="${esc(slides[cur].p.name)} video" allow="autoplay; encrypted-media"></iframe>`);
+          yt.append(ytIframe(id, `${slides[cur].p.name} video`, () => yt.classList.add("ready")));
         }
         elapsed = 0;
         segEls.forEach((s, i) => {
@@ -197,6 +215,13 @@
         });
       };
       go(0);
+      // Play the current video when the slideshow is on screen, pause it when you scroll away
+      new IntersectionObserver(([en]) => {
+        const on = $(".slide.on", root);
+        const f = on && $("iframe", on), v = on && $("video", on);
+        if (f) ytCmd(f, en.isIntersecting ? "playVideo" : "pauseVideo");
+        if (v) en.isIntersecting ? playMuted(v) : v.pause();
+      }, { threshold: 0.25 }).observe(root);
       if (slides.length < 2) return;
 
       // Timer in JS (not a CSS animation), so it works the same when the device has animations turned off
@@ -238,6 +263,39 @@
     /* ── Grid + tabs ─────────────────────────────────── */
     const grid = $("#grid");
     grid.innerHTML = products.map(K.cardHTML).join("");
+
+    /* Hover a card to play its video (muted). Only on devices with a mouse. */
+    if (matchMedia("(hover: hover)").matches) {
+      $$(".card", grid).forEach((card) => {
+        const p = byId[card.dataset.id];
+        if (!p?.video) return;
+        const art = $(".card-art", card);
+        let timer = 0, box = null;
+        card.addEventListener("mouseenter", () => {
+          timer = setTimeout(() => {
+            const id = K.ytId(p.video);
+            box = document.createElement("div");
+            box.className = "card-preview";
+            if (id) box.append(ytIframe(id, `${p.name} preview`, () => box?.classList.add("ready")));
+            else {
+              const v = document.createElement("video");
+              v.src = p.video; v.loop = true; v.preload = "auto";
+              v.addEventListener("playing", () => box?.classList.add("ready"), { once: true });
+              box.append(v);
+              playMuted(v);
+            }
+            art.append(box);
+          }, 250);
+        });
+        card.addEventListener("mouseleave", () => {
+          clearTimeout(timer);
+          if (!box) return;
+          const old = box; box = null;
+          old.classList.remove("ready");
+          setTimeout(() => old.remove(), 350);
+        });
+      });
+    }
     // Category chips: each one uses the icon of the first kit in that category.
     const tabs = $("#tabs");
     const cats = [...new Set(products.map((p) => p.category).filter(Boolean))];

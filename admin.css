@@ -7,7 +7,6 @@ body.admin { background: var(--band); min-height: 100vh; }
 .connect { min-height: 100vh; display: grid; place-items: center; padding: 40px 16px; }
 .connect-card { width: min(420px, 100%); background: var(--card); border-radius: 22px; padding: 36px 32px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08); }
 .connect-icon { width: 56px; height: 56px; border-radius: 14px; background: #1d1d1f; color: #fff; display: grid; place-items: center; font-size: 28px; font-weight: 700; }
-@media (prefers-color-scheme: dark) { .connect-icon { background: #f5f5f7; color: #1d1d1f; } }
 .connect-card h1 { font-size: 28px; letter-spacing: -0.03em; }
 .connect-card .muted { font-size: 15px; }
 .help { font-size: 14px; color: var(--text-2); }
@@ -15,7 +14,6 @@ body.admin { background: var(--band); min-height: 100vh; }
 .help ol { padding-left: 18px; margin: 10px 0; display: grid; gap: 6px; }
 .help a { color: var(--link); }
 .error { font-size: 14px; color: #e30000; background: rgba(227, 0, 0, 0.07); padding: 10px 12px; border-radius: 10px; }
-@media (prefers-color-scheme: dark) { .error { color: #ff6961; background: rgba(255, 105, 97, 0.12); } }
 
 /* Fields */
 .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; color: var(--text-2); }
@@ -171,7 +169,7 @@ body.admin { background: var(--band); min-height: 100vh; }
 
 /* Music */
 .music-row { position: relative; display: flex; align-items: center; gap: 10px; }
-.music-row audio { flex: 1; height: 44px; border-radius: 12px; color-scheme: dark; }
+.music-row audio { flex: 1; height: 44px; border-radius: 12px; color-scheme: light; }
 .music-row .remove { position: static; flex: none; }
 .music-marks { display: flex; gap: 8px; flex-wrap: wrap; }
 .field input[type="range"] { padding: 0; height: 28px; background: none; accent-color: var(--blue); }
