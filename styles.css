@@ -178,7 +178,7 @@ img { display: block; max-width: 100%; }
 .featured {
   --p: 0; position: relative; max-width: 1152px; margin: 0 auto; border-radius: 22px; overflow: hidden; background: #101010;
   aspect-ratio: 16 / 8; min-height: 520px; max-height: 680px;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 50px 120px -40px color-mix(in srgb, var(--c2, #3b6cff) 60%, transparent);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 30px 60px -30px rgba(0, 0, 0, 0.8);
   transform: rotateX(calc((1 - var(--p)) * 16deg)) scale(calc(0.88 + var(--p) * 0.12)); transform-origin: 50% 0;
   will-change: transform;
 }
@@ -187,7 +187,7 @@ img { display: block; max-width: 100%; }
 .slide.on { opacity: 1; visibility: visible; transition: opacity 1s var(--ease); }
 .slide-bg { overflow: hidden; transform: scale(1.08); transition: transform 1.6s var(--ease); }
 .slide.on .slide-bg { transform: none; }
-.slide-bg img, .slide-bg video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.slide-bg > img, .slide-bg > video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .slide.on .kb { animation: kenburns var(--slide-ms, 15s) linear both; }
 @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.12); } }
 .yt { position: absolute; inset: 0; }
