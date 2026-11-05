@@ -69,13 +69,14 @@
     const title = $("#heroTitle");
     title.setAttribute("aria-label", S.tagline);
     const words = S.tagline.split(" ");
-    title.innerHTML = words.map((w, i) => `<span class="w${i >= words.length - 2 ? " hot" : ""}" aria-hidden="true"><span style="--i:${i}">${esc(w)}</span></span>`).join(" ");
+    // Reference-style title: first words grey, the last word bright.
+    title.innerHTML = words.map((w, i) => `<span class="w${i === words.length - 1 ? " hot" : ""}" aria-hidden="true"><span style="--i:${i}">${esc(w)}</span></span>`).join(" ");
     requestAnimationFrame(() => requestAnimationFrame(() => title.classList.add("in")));
 
-    /* ── Floating stickers around the hero ───────────── */
+    /* ── A few of Suley's icons floating beside the title ── */
     // [left%, top%, size px, depth, delay s]
-    const slots = [[8, 18, 110, 1.2, 0], [84, 14, 96, 0.8, 1.1], [3, 58, 78, 0.6, 0.6], [90, 52, 120, 1.4, 1.8], [18, 80, 64, 0.5, 2.4], [74, 80, 70, 0.7, 0.3], [30, 14, 54, 0.4, 1.5], [66, 12, 58, 0.5, 2.1]];
-    const heroStickers = S.hero?.stickers?.length ? S.hero.stickers : ["ball", "robux", "smile", "bolt", "flame", "trophy", "music", "star"];
+    const slots = [[8, 30, 92, 1.1, 0], [91, 26, 84, 0.9, 1.1], [17, 70, 60, 0.6, 0.6], [83, 72, 66, 0.7, 1.8], [27, 10, 46, 0.45, 2.4], [72, 8, 50, 0.5, 0.3]];
+    const heroStickers = S.hero?.stickers?.length ? S.hero.stickers : ["red-ball", "robux", "mic", "trophy", "heart", "crystal"];
     const floaters = $("#floaters");
     floaters.innerHTML = heroStickers.slice(0, slots.length).map((n, i) => {
       const [x, y, s, depth, delay] = slots[i];
@@ -228,38 +229,46 @@
     /* ── Grid + tabs ─────────────────────────────────── */
     const grid = $("#grid");
     grid.innerHTML = products.map(K.cardHTML).join("");
+    // Category chips: each one uses the icon of the first kit in that category.
     const tabs = $("#tabs");
-    const cats = ["All", ...new Set(products.map((p) => p.category).filter(Boolean))];
-    tabs.innerHTML = `<span class="tab-pill" id="tabPill"></span>` + cats.map((c, i) => `<button role="tab" aria-selected="${i === 0}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
-    if (cats.length < 3) tabs.hidden = true;
-    const pill = $("#tabPill");
-    pill.style.left = "3px";
-    const movePill = () => {
-      const on = $('[aria-selected="true"]', tabs);
-      if (!on) return;
-      pill.style.width = on.offsetWidth + "px";
-      pill.style.transform = `translateX(${on.offsetLeft - 3}px)`;
+    const cats = [...new Set(products.map((p) => p.category).filter(Boolean))];
+    const catIcon = (c) => { const p = products.find((x) => x.category === c); return p ? (p.iconImage ? `<img src="${esc(p.iconImage)}" alt="" />` : I.sticker(p.icon)) : ""; };
+    tabs.innerHTML =
+      `<button class="chip" role="tab" aria-selected="true" data-cat="All">${I.sticker("podium")}All kits</button>` +
+      cats.map((c) => `<button class="chip" role="tab" aria-selected="false" data-cat="${esc(c)}">${catIcon(c)}${esc(c)}</button>`).join("");
+    let cat = "All", query = "";
+    const applyFilter = () => {
+      const run = () => {
+        let shown = 0;
+        $$(".card", grid).forEach((c) => {
+          const p = byId[c.dataset.id];
+          const hay = `${p.name} ${p.short} ${p.category} ${p.description} ${(p.features || []).join(" ")}`.toLowerCase();
+          const ok = (cat === "All" || p.category === cat) && (!query || hay.includes(query));
+          c.hidden = !ok;
+          if (ok) { c.classList.add("in"); shown++; }
+        });
+        $("#empty").hidden = shown > 0;
+      };
+      if (document.startViewTransition && !reduce) document.startViewTransition(run); else run();
     };
     tabs.addEventListener("click", (e) => {
-      const b = e.target.closest("button");
+      const b = e.target.closest(".chip");
       if (!b) return;
-      $$("button", tabs).forEach((x) => x.setAttribute("aria-selected", x === b));
-      movePill();
-      const cat = b.dataset.cat;
-      const run = () => $$(".card", grid).forEach((c) => {
-        const show = cat === "All" || byId[c.dataset.id].category === cat;
-        c.hidden = !show;
-        if (show) c.classList.add("in");
-      });
-      if (document.startViewTransition && !reduce) document.startViewTransition(run); else run();
+      $$(".chip", tabs).forEach((x) => x.setAttribute("aria-selected", x === b));
+      cat = b.dataset.cat;
+      applyFilter();
     });
-    requestAnimationFrame(movePill);
-    addEventListener("resize", movePill);
-    document.fonts?.ready.then(movePill);
+    let qT;
+    $("#search").addEventListener("input", (e) => {
+      clearTimeout(qT);
+      qT = setTimeout(() => { query = e.target.value.trim().toLowerCase(); applyFilter(); }, 120);
+    });
+    $(".search-ico").innerHTML = I.icon("search");
+    $$(".discord-mark").forEach((el) => (el.innerHTML = I.discord));
 
     /* ── How to buy, perks, reviews, FAQ ─────────────── */
     $("#pay").textContent = S.payments?.length ? `Accepted: ${S.payments.join(", ")}.` : "";
-    $("#perks").innerHTML = (S.perks || []).map((k, i) => `<div class="perk spot reveal" style="--d:${i * 0.08}s">${I.icon(k.icon)}<h3>${esc(k.title)}</h3><p>${esc(k.text)}</p></div>`).join("");
+    $("#perks").innerHTML = (S.perks || []).map((k, i) => `<div class="perk spot reveal" style="--d:${i * 0.08}s"><span class="perk-ico">${I.sticker(k.icon)}</span><h3>${esc(k.title)}</h3><p>${esc(k.text)}</p></div>`).join("");
     if (!S.perks?.length) $("#perks").closest("section").remove();
 
     if (S.reviews?.length) {

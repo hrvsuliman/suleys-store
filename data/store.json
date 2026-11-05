@@ -1,19 +1,17 @@
 {
   "name": "Suley's Store",
-  "tagline": "Roblox kits that go hard.",
-  "subtitle": "Made by me. Grab one on Discord and it’s yours in minutes.",
+  "tagline": "Explore my kits",
+  "subtitle": "Roblox kits I build myself. Every kit comes with the full source code, and you buy it straight through my Discord.",
   "hero": {
     "banner": "",
     "featured": "bluelock-kit-v1",
     "stickers": [
-      "ball",
+      "red-ball",
       "robux",
-      "smile",
-      "bolt",
-      "flame",
+      "mic",
       "trophy",
-      "music",
-      "star"
+      "heart",
+      "crystal"
     ]
   },
   "discord": {
@@ -28,24 +26,24 @@
   ],
   "perks": [
     {
-      "icon": "code",
-      "title": "Full source",
-      "text": "Every script is yours to edit."
+      "icon": "document",
+      "title": "You get the full source",
+      "text": "Nothing is locked or obfuscated, so you can read every script and change whatever you want."
     },
     {
-      "icon": "refresh",
+      "icon": "star-medal",
       "title": "Free updates",
-      "text": "V2 drops? You get it."
+      "text": "When I improve a kit you get the new version for free, all the way until the next big version."
     },
     {
-      "icon": "book",
-      "title": "Easy setup",
-      "text": "Drop it in Studio and go."
+      "icon": "gear",
+      "title": "Easy to set up",
+      "text": "Each kit comes with a setup guide, so you can get it running in Studio without guessing."
     },
     {
-      "icon": "chat",
-      "title": "I got you",
-      "text": "Stuck? Hit me up on Discord."
+      "icon": "heart",
+      "title": "I actually help",
+      "text": "If something breaks or you get stuck, message me on Discord and I’ll help you sort it out."
     }
   ],
   "products": [
@@ -56,21 +54,21 @@
       "robux": 4000,
       "oldRobux": null,
       "badge": "New",
-      "short": "Everything you need to start your own Bluelock game.",
-      "description": "My Bluelock-style football kit. Drop it in Studio, tweak it, and you’ve got the base for your own Bluelock game.",
+      "short": "The base for your own Bluelock-style football game.",
+      "description": "This is the football system I use for Bluelock-style games. You get ball control, shooting, passing and abilities already working, so you can focus on building your game instead of the core mechanics. Everything is open source, I help you set it up, and you get free updates until V2 comes out.",
       "features": [
-        "Ball system",
-        "Shooting & passing",
-        "Abilities",
-        "Ready to edit",
-        "Full support",
-        "Free updates till V2"
+        "Ball control and dribbling",
+        "Shooting and passing",
+        "Abilities system",
+        "Clean, editable scripts",
+        "Full support on Discord",
+        "Free updates until V2"
       ],
       "includes": [
         "Place file",
         "Source code"
       ],
-      "icon": "ball",
+      "icon": "red-ball",
       "iconImage": "",
       "colors": [
         "#3b82f6",
@@ -90,10 +88,10 @@
         }
       ],
       "stickers": [
-        "ball",
-        "bolt",
-        "flame",
-        "trophy"
+        "red-ball",
+        "trophy",
+        "star",
+        "podium"
       ]
     },
     {
@@ -103,21 +101,21 @@
       "robux": 2000,
       "oldRobux": null,
       "badge": "New",
-      "short": "Full emote framework so players can vibe in your game.",
-      "description": "Full emote framework for your game. Players open the bar, pick an emote, done. Easy to add your own emotes. Full support, and free updates until the next version drops.",
+      "short": "A full emote framework your players can use right away.",
+      "description": "A complete emote system for your game. Players open the emote bar, pick an emote and it plays. Adding your own emotes is easy, it works on mobile, and I help you set it up. You also get free updates until the next version comes out.",
       "features": [
-        "Full framework",
-        "Clean emote UI",
+        "Full emote framework",
+        "Clean emote bar UI",
         "Works on mobile",
-        "Add your own emotes",
-        "Full support",
-        "Free updates till V2"
+        "Easy to add your own emotes",
+        "Full support on Discord",
+        "Free updates until V2"
       ],
       "includes": [
         "Model",
         "Source code"
       ],
-      "icon": "sparkles",
+      "icon": "mic",
       "iconImage": "",
       "colors": [
         "#f472b6",
@@ -133,38 +131,38 @@
         }
       ],
       "stickers": [
-        "smile",
-        "music",
+        "mic",
+        "heart",
         "star",
-        "heart"
+        "prism"
       ]
     }
   ],
   "reviews": [],
   "faq": [
     {
-      "q": "How do I buy?",
-      "a": "Join the Discord and open a ticket, or just DM me. Pay, and I send you the kit."
+      "q": "How do I buy a kit?",
+      "a": "Join the Discord and open a ticket, or just DM me. Tell me which kit you want, pay, and I send it to you right after."
     },
     {
-      "q": "How do I pay?",
-      "a": "Robux, gamepass or cash. Each kit shows its prices."
+      "q": "How can I pay?",
+      "a": "You can pay with Robux, through a gamepass, or with cash for some kits. Each kit shows which options it has."
     },
     {
       "q": "Do I get updates?",
-      "a": "Yep, free. They drop in the Discord."
+      "a": "Yes, updates are free until the next version of the kit comes out. I post them in the Discord."
     },
     {
-      "q": "Do I need to script?",
-      "a": "Nah. Setup is easy, and I’ll help if you get stuck."
+      "q": "Do I need to know how to script?",
+      "a": "Not really. Every kit comes with a setup guide, and if you get stuck I’ll help you on Discord."
     },
     {
-      "q": "Can I resell it?",
-      "a": "No. Use it in your own games, but don’t leak or resell it."
+      "q": "Can I resell or share a kit?",
+      "a": "No. You can use it in your own games as much as you want, but please don’t leak or resell the files."
     },
     {
-      "q": "Refunds?",
-      "a": "Kits are files, so no refunds once sent. If something’s broken, I’ll fix it."
+      "q": "Can I get a refund?",
+      "a": "Since kits are files, I can’t take them back once they are sent. If something doesn’t work, I’ll fix it for you."
     }
   ]
 }

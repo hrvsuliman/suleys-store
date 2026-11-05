@@ -23,13 +23,14 @@ window.KIT = (() => {
     const c = p.colors || ["#a1a1a6", "#6e6e73"];
     return `--c1:${esc(c[0])};--c2:${esc(c[1])}`;
   };
+  // Kit icon: an uploaded image, or one of Suley's icons.
   const appIcon = (p) =>
     p.iconImage
       ? `<div class="app app-img"><img src="${esc(src(p.iconImage))}" alt="" loading="lazy" /></div>`
-      : `<div class="app">${I.icon(p.icon)}</div>`;
+      : `<div class="app">${I.sticker(p.icon) || I.sticker((p.stickers || [])[0]) || I.sticker("podium")}</div>`;
   // Floating sticker scene: first sticker big in the middle, the rest orbit around it.
   const scene = (p) => {
-    const s = (p.stickers || []).filter((n) => I.stickerNames.includes(n)).slice(0, 4);
+    const s = (p.stickers || []).map(I.resolve).filter(Boolean).slice(0, 4);
     if (!s.length) return appIcon(p);
     return `<div class="scene">${s.map((n, i) => `<span class="fl fl${i}">${I.sticker(n)}</span>`).join("")}</div>`;
   };
@@ -60,19 +61,27 @@ window.KIT = (() => {
     return `<img src="${esc(src(m.src))}" alt="" />`;
   };
 
+  // Payment tags shown on each card, like the framework tags on FiveM stores.
+  const tagKind = (label) => (/game ?pass/i.test(label) ? "gp" : /cash|usd|\$|€|paypal/i.test(label) ? "cash" : "other");
+  const tagsHTML = (p) =>
+    `<span class="tag tag-rbx">Robux</span>` + (p.options || []).map((o) => `<span class="tag tag-${tagKind(o.label)}">${esc(o.label)}</span>`).join("");
+  // Small line under the price: sale info or the other prices.
+  const altLine = (p) => {
+    if (p.oldRobux) return `<s>${fmt(p.oldRobux)}</s> on sale right now`;
+    const bits = (p.options || []).map((o) => (typeof o.price === "number" ? `${fmt(o.price)} via ${esc(o.label.toLowerCase())}` : `${esc(o.price)} ${esc(o.label.toLowerCase())}`));
+    return bits.length ? `or ${bits.join(" · ")}` : esc(p.category || "");
+  };
+
   const cardHTML = (p, i = 0) => `
-    <article class="card spot reveal" tabindex="0" role="button" aria-label="${esc(p.name)}, ${esc(priceText(p))}" data-id="${esc(p.id)}" style="--d:${(i % 3) * 0.08}s;view-transition-name:kit-${esc(p.id)}">
-      <div class="card-art${p.cover ? " has-cover" : ""}" style="${vars(p)}">${coverOrIcon(p)}${p.video ? `<span class="has-video">${I.icon("play")} Video</span>` : ""}</div>
+    <article class="card spot reveal" tabindex="0" role="button" aria-label="${esc(p.name)}, ${esc(priceText(p))}" data-id="${esc(p.id)}" style="--d:${(i % 4) * 0.07}s;view-transition-name:kit-${esc(p.id)}">
+      <div class="card-art${p.cover ? " has-cover" : ""}" style="${vars(p)}">${coverOrIcon(p)}${p.badge ? `<span class="card-badge">${esc(p.badge)}</span>` : ""}${p.video ? `<span class="has-video">${I.icon("play")} Video</span>` : ""}</div>
+      <div class="card-tags">${tagsHTML(p)}</div>
       <div class="card-body">
-        <span class="card-label">${esc(p.badge || "")}</span>
         <h3>${esc(p.name)}</h3>
-        <p>${esc(p.short)}</p>
-        <div class="card-foot">
-          <span class="price">${priceHTML(p)}</span>
-          <span class="btn btn-primary btn-sm">Buy</span>
-        </div>
+        <div class="card-price">${I.robux}<b>${fmt(p.robux)}</b></div>
+        <p class="card-alt">${altLine(p)}</p>
       </div>
     </article>`;
 
-  return { esc, fmt, priceHTML, priceText, optionsHTML, vars, appIcon, scene, coverOrIcon, ytId, media, mediaHTML, thumbHTML, cardHTML, setResolver };
+  return { esc, fmt, priceHTML, priceText, optionsHTML, tagsHTML, vars, appIcon, scene, coverOrIcon, ytId, media, mediaHTML, thumbHTML, cardHTML, setResolver };
 })();

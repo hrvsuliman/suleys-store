@@ -4,87 +4,87 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Suley's Store · Roblox Kits</title>
-  <meta name="description" content="Roblox kits with full source code. Buy on Discord and get your kit in minutes." />
-  <meta name="theme-color" content="#050508" />
+  <meta name="description" content="Roblox kits made by Suley. Every kit comes with the full source code, and you buy it through Discord." />
+  <meta name="theme-color" content="#151515" />
   <meta property="og:title" content="Suley's Store · Roblox Kits" />
-  <meta property="og:description" content="Roblox kits with full source code. Buy on Discord and get your kit in minutes." />
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <meta property="og:description" content="Roblox kits made by Suley. Every kit comes with the full source code, and you buy it through Discord." />
+  <meta property="og:image" content="assets/icons/podium.webp" />
+  <link rel="icon" href="assets/icons/podium.webp" type="image/webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=1793902082" />
+  <link rel="stylesheet" href="styles.css?v=1793902974" />
 </head>
 <body>
-  <div class="grain" aria-hidden="true"></div>
   <header class="nav" id="nav">
     <div class="nav-inner">
-      <a class="brand" href="#top" data-bind="name"></a>
+      <a class="brand" href="#top"><img src="assets/icons/podium.webp" alt="" /><span data-bind="name"></span></a>
       <nav class="nav-links" aria-label="Sections">
         <a href="#kits">Kits</a>
+        <a href="#releases">Latest releases</a>
         <a href="#how">How to buy</a>
         <a href="#faq">FAQ</a>
       </nav>
-      <a class="nav-cta btn btn-sm btn-primary" data-discord target="_blank" rel="noopener">Join Discord</a>
+      <div class="nav-right">
+        <a class="nav-icon" data-discord target="_blank" rel="noopener" aria-label="Discord server" title="Discord server"><span class="discord-mark"></span></a>
+        <a class="nav-icon" href="#how" aria-label="How to buy" title="How to buy"><img src="assets/icons/basket.webp" alt="" /></a>
+        <a class="btn btn-sm btn-primary" data-discord target="_blank" rel="noopener">Join Discord</a>
+      </div>
     </div>
   </header>
 
   <main id="top">
-   <div class="hero-stage">
-    <div class="stage-fx" aria-hidden="true">
-      <span class="glow g1"></span><span class="glow g2"></span><span class="glow g3"></span>
-      <div class="floaters" id="floaters"></div>
-      <span class="vignette"></span>
-    </div>
-    <!-- Hero -->
-    <section class="hero">
-      <p class="hero-eyebrow reveal"><span>Orders open · by @<span data-bind="discord.username"></span></span></p>
-      <h1 class="hero-title" id="heroTitle"></h1>
-      <p class="hero-sub reveal" style="--d:.25s" data-bind="subtitle"></p>
-      <div class="hero-actions reveal" style="--d:.35s">
-        <a class="btn btn-primary magnetic" href="#kits">Browse kits</a>
-        <a class="btn btn-ghost magnetic" data-discord target="_blank" rel="noopener">Join the Discord</a>
+    <!-- Store front -->
+    <div class="hero-stage">
+      <div class="stage-fx" aria-hidden="true">
+        <span class="spotlight"></span>
+        <div class="floaters" id="floaters"></div>
       </div>
-    </section>
-
-    <!-- Hero banner (set in admin) -->
-    <section class="banner-wrap" id="heroBanner" hidden></section>
-
-    <!-- Featured kit -->
-    <section class="featured-wrap">
-      <article class="featured" id="featured"></article>
-    </section>
-   </div>
-
-    <!-- Kits -->
-    <section class="band" id="kits">
-      <div class="container">
-        <h2 class="headline reveal">The drops. <span class="dim">More coming soon.</span></h2>
-        <div class="tabs reveal" id="tabs" role="tablist" aria-label="Filter kits"></div>
+      <section class="explore" id="kits">
+        <h1 class="hero-title" id="heroTitle"></h1>
+        <p class="hero-sub reveal" style="--d:.2s" data-bind="subtitle"></p>
+        <label class="search reveal" style="--d:.28s">
+          <span class="search-ico"></span>
+          <input id="search" type="search" placeholder="Search kits…" autocomplete="off" spellcheck="false" />
+        </label>
+        <div class="chips reveal" style="--d:.34s" id="tabs" role="tablist" aria-label="Filter kits"></div>
         <div class="grid" id="grid"></div>
+        <p class="empty" id="empty" hidden>Nothing matches that search. Try something else or check the Discord for upcoming kits.</p>
+      </section>
+    </div>
+
+    <!-- Latest releases slideshow -->
+    <section class="section releases" id="releases">
+      <div class="container">
+        <h2 class="headline">Latest releases <span class="dim">and what each kit looks like in action.</span></h2>
+      </div>
+      <div class="banner-wrap" id="heroBanner" hidden></div>
+      <div class="featured-wrap">
+        <article class="featured" id="featured"></article>
       </div>
     </section>
 
     <!-- How to buy -->
     <section class="section" id="how">
       <div class="container">
-        <h2 class="headline reveal">How to cop one. <span class="dim">All through Discord.</span></h2>
+        <h2 class="headline">How buying works <span class="dim">— everything happens through Discord.</span></h2>
         <ol class="steps">
           <li class="reveal spot">
-            <span class="step-n">1</span>
+            <span class="step-ico discord-tile"><span class="discord-mark"></span></span>
             <h3>Join the server</h3>
-            <p>Check out previews and vouches.</p>
+            <p>You can look at previews and read what other people thought before you buy anything.</p>
             <a class="btn-link" data-discord target="_blank" rel="noopener">Join the Discord <span class="chev">›</span></a>
           </li>
           <li class="reveal spot" style="--d:.1s">
-            <span class="step-n">2</span>
+            <span class="step-ico"><img src="assets/icons/document.webp" alt="" /></span>
             <h3>Open a ticket or DM me</h3>
-            <p>Tell me which kit you want. My @ is <b><span data-bind="discord.username"></span></b>.</p>
+            <p>Tell me which kit you want. If you'd rather message me directly, my username is <b><span data-bind="discord.username"></span></b>.</p>
             <a class="btn-link" data-dm target="_blank" rel="noopener">Message me <span class="chev">›</span></a>
           </li>
           <li class="reveal spot" style="--d:.2s">
-            <span class="step-n">3</span>
-            <h3>Pay and it's yours</h3>
-            <p>I send you the kit right after.</p>
+            <span class="step-ico"><img src="assets/icons/money-bag.webp" alt="" /></span>
+            <h3>Pay and get your kit</h3>
+            <p>As soon as the payment goes through, I send you the files and the setup guide.</p>
             <p class="pay" id="pay"></p>
           </li>
         </ol>
@@ -92,9 +92,9 @@
     </section>
 
     <!-- Perks -->
-    <section class="band">
+    <section class="section">
       <div class="container">
-        <h2 class="headline reveal">Why my kits. <span class="dim">No cap.</span></h2>
+        <h2 class="headline">Why buy from me <span class="dim">instead of grabbing a free model.</span></h2>
         <div class="perks" id="perks"></div>
       </div>
     </section>
@@ -102,7 +102,7 @@
     <!-- Vouches (hidden until reviews are added in the admin) -->
     <section class="section" id="reviews" hidden>
       <div class="container">
-        <h2 class="headline reveal">Vouches. <span class="dim">Real ones.</span></h2>
+        <h2 class="headline">Vouches <span class="dim">from people who bought a kit.</span></h2>
         <div class="reviews" id="reviewList"></div>
       </div>
     </section>
@@ -110,18 +110,22 @@
     <!-- FAQ -->
     <section class="section" id="faq">
       <div class="container narrow">
-        <h2 class="headline reveal">Got questions?</h2>
+        <div class="faq-head">
+          <img src="assets/icons/question-medal.webp" alt="" />
+          <h2 class="headline">Questions people usually ask</h2>
+        </div>
         <div class="faq" id="faqList"></div>
       </div>
     </section>
 
     <!-- CTA -->
     <section class="cta" id="join">
-      <div class="container cta-inner">
-        <h2 class="reveal">Pull up to the Discord.</h2>
-        <p class="reveal" style="--d:.1s">Buy kits, ask stuff, see what's dropping next.</p>
-        <p class="cta-meta reveal" style="--d:.15s" id="ctaMeta" hidden></p>
-        <div class="hero-actions reveal" style="--d:.2s">
+      <div class="cta-inner reveal">
+        <img class="cta-ico" src="assets/icons/trophy.webp" alt="" />
+        <h2>Want a kit or have a question?</h2>
+        <p>Come say hi on Discord. That's where you buy kits, get help with setup and see what I'm working on next.</p>
+        <p class="cta-meta" id="ctaMeta" hidden></p>
+        <div class="hero-actions">
           <a class="btn btn-white magnetic" data-discord target="_blank" rel="noopener">Join the Discord</a>
           <a class="btn btn-ghost magnetic" data-dm target="_blank" rel="noopener"><span>DM @<span data-bind="discord.username"></span></span></a>
         </div>
@@ -131,12 +135,12 @@
 
   <footer class="footer">
     <div class="container">
-      <p>All sales go through Discord. Use kits in your own games, don't leak or resell them.</p>
-      <p><span data-bind="name"></span> isn't affiliated with or endorsed by Roblox Corporation.</p>
-      <div class="foot-row">
-        <span>Copyright © <span id="year"></span> <span data-bind="name"></span>. All rights reserved.</span>
-        <nav><a href="#kits">Kits</a><a href="#how">How to buy</a><a href="#faq">FAQ</a><a data-discord target="_blank" rel="noopener">Discord</a></nav>
+      <div class="foot-top">
+        <a class="brand" href="#top"><img src="assets/icons/podium.webp" alt="" /><span data-bind="name"></span></a>
+        <nav><a href="#kits">Kits</a><a href="#releases">Latest releases</a><a href="#how">How to buy</a><a href="#faq">FAQ</a><a data-discord target="_blank" rel="noopener">Discord</a></nav>
       </div>
+      <p>All sales go through Discord. You can use the kits in your own games, but please don't leak or resell them.</p>
+      <p>© <span id="year"></span> <span data-bind="name"></span>. Not affiliated with or endorsed by Roblox Corporation.</p>
     </div>
   </footer>
 
@@ -148,8 +152,8 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-  <script src="icons.js?v=1793902082"></script>
-  <script src="shared.js?v=1793902082"></script>
-  <script src="app.js?v=1793902082"></script>
+  <script src="icons.js?v=1793902974"></script>
+  <script src="shared.js?v=1793902974"></script>
+  <script src="app.js?v=1793902974"></script>
 </body>
 </html>

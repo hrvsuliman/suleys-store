@@ -288,7 +288,7 @@
     if (tab === "store") renderStore();
     if (tab === "faq") renderRows("faq", "FAQ", "Questions shown at the bottom of the site.", [{ k: "q", label: "Question" }, { k: "a", label: "Answer", area: true }], { q: "", a: "" });
     if (tab === "reviews") renderRows("reviews", "Vouches", "Real reviews from buyers. The section is hidden on the site while this list is empty.", [{ k: "name", label: "Name" }, { k: "kit", label: "Kit (optional)" }, { k: "text", label: "Review", area: true }], { name: "", kit: "", text: "" });
-    if (tab === "perks") renderRows("perks", "Perks", "The “Why buy here” cards.", [{ k: "icon", label: "Icon", icon: true }, { k: "title", label: "Title" }, { k: "text", label: "Text", area: true }], { icon: "check", title: "", text: "" });
+    if (tab === "perks") renderRows("perks", "Perks", "The “Why buy here” cards.", [{ k: "icon", label: "Icon", icon: true }, { k: "title", label: "Title" }, { k: "text", label: "Text", area: true }], { icon: "star", title: "", text: "" });
   };
 
   /* Kit list */
@@ -375,11 +375,11 @@
 
           <section class="group">
             <h2>Icon</h2>
-            <div class="seg-mini"><button type="button" data-mode="builtin" aria-pressed="${mode === "builtin"}">Built-in</button><button type="button" data-mode="upload" aria-pressed="${mode === "upload"}">Upload image</button></div>
+            <div class="seg-mini"><button type="button" data-mode="builtin" aria-pressed="${mode === "builtin"}">My icons</button><button type="button" data-mode="upload" aria-pressed="${mode === "upload"}">Upload image</button></div>
             ${mode === "builtin" ? `
-              <div class="icon-grid">${I.builtIn.map((k) => `<button type="button" data-icon-pick="${k}" aria-pressed="${p.icon === k && !p.iconImage}" aria-label="${k}">${ic(k)}</button>`).join("")}</div>
+              <div class="icon-grid">${I.builtIn.map((k) => `<button type="button" data-icon-pick="${k}" aria-pressed="${I.resolve(p.icon) === k && !p.iconImage}" aria-label="${k}">${I.sticker(k)}</button>`).join("")}</div>
               <div class="colors">
-                <label>From <input type="color" data-color="0" value="${esc(p.colors[0])}" /></label>
+                <span>Card colours</span><label>From <input type="color" data-color="0" value="${esc(p.colors[0])}" /></label>
                 <label>To <input type="color" data-color="1" value="${esc(p.colors[1])}" /></label>
                 <div class="swatches">${SWATCHES.map((s) => `<button type="button" data-sw="${s.join(",")}" style="--a:${s[0]};--b:${s[1]}" aria-label="Colour preset"></button>`).join("")}</div>
               </div>` : p.iconImage ? mediaPreview(p.iconImage, { square: true, rm: "iconImage" }) : dropZone("icon", "Square image, at least 512×512. PNG with transparency works.", "image/*", false)}
@@ -594,7 +594,6 @@
   /* Repeating rows: FAQ, vouches, perks */
   const renderRows = (key, title, sub, fields, blank) => {
     const list = data[key];
-    const iconOpts = [...new Set(["check", "code", "refresh", "book", "chat", ...I.builtIn])];
     view().innerHTML = `
       <div class="view-head"><div><h1>${title}</h1><p>${sub}</p></div><button class="btn btn-primary btn-sm" data-add>${ic("plus")} Add</button></div>
       <div class="rows">${list.length ? list.map((r, i) => `
@@ -605,7 +604,7 @@
             <button class="mini danger" data-del="${i}" aria-label="Delete">${ic("trash")}</button>
           </div></div>
           ${fields.map((f) => `<label class="field"><span>${f.label}</span>${
-            f.icon ? `<select data-i="${i}" data-f="${f.k}">${iconOpts.map((o) => `<option ${r[f.k] === o ? "selected" : ""}>${o}</option>`).join("")}</select>`
+            f.icon ? `<div class="sticker-grid small">${I.stickerNames.map((n) => `<button type="button" data-ri="${i}" data-rk="${f.k}" data-rv="${n}" aria-pressed="${I.resolve(r[f.k]) === n}" aria-label="${n}">${I.sticker(n)}</button>`).join("")}</div>`
             : f.area ? `<textarea data-i="${i}" data-f="${f.k}" rows="3">${esc(r[f.k])}</textarea>`
             : `<input data-i="${i}" data-f="${f.k}" value="${esc(r[f.k])}" />`}</label>`).join("")}
         </div>`).join("") : `<div class="empty-state">Nothing here yet.</div>`}</div>`;
@@ -619,6 +618,7 @@
       const b = e.target.closest("button");
       if (!b) return;
       if (b.dataset.add !== undefined) { list.push({ ...blank }); render(); markDirty(); $$(".row").at(-1)?.scrollIntoView({ block: "center" }); $$(".row").at(-1)?.querySelector("input,textarea")?.focus(); return; }
+      if (b.dataset.rv) { list[+b.dataset.ri][b.dataset.rk] = b.dataset.rv; const y = scrollY; render(); scrollTo(0, y); markDirty(); return; }
       if (b.dataset.up) { const i = +b.dataset.up; [list[i - 1], list[i]] = [list[i], list[i - 1]]; }
       else if (b.dataset.down) { const i = +b.dataset.down; [list[i + 1], list[i]] = [list[i], list[i + 1]]; }
       else if (b.dataset.del) { if (!confirm("Delete this item?")) return; list.splice(+b.dataset.del, 1); }
