@@ -640,6 +640,86 @@
       });
     })();
 
+    /* ── Send love: one global counter shared by every visitor (stored on abacus.jasoncameron.dev) ── */
+    (() => {
+      const btns = $$("[data-love]");
+      if (!btns.length) return;
+      const API = "https://abacus.jasoncameron.dev";
+      const NS = "suleys-store", KEY = "love";
+      const DAILY_LIMIT = 30; // per visitor, so one person can't spam the number
+      let count = null;
+      const short = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M" : n >= 1e4 ? (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k" : n.toLocaleString("en-US"));
+      const render = () => $$("[data-love-count]").forEach((el) => (el.textContent = count == null ? "…" : short(count)));
+      fetch(`${API}/get/${NS}/${KEY}`)
+        .then((r) => (r.ok ? r.json() : { value: 0 }))
+        .then((d) => { count = Math.max(count || 0, d.value || 0); render(); })
+        .catch(() => { count = null; $$("[data-love-count]").forEach((el) => (el.textContent = "")); });
+
+      const today = () => new Date().toISOString().slice(0, 10);
+      const sentToday = () => { try { const d = JSON.parse(localStorage.getItem("love") || "{}"); return d.day === today() ? d.n : 0; } catch (e) { return 0; } };
+      const markSent = (n) => { try { localStorage.setItem("love", JSON.stringify({ day: today(), n })); } catch (e) {} };
+
+      // Hits go out one after another so fast clicking doesn't fire 20 requests at once
+      let queue = 0, sending = false;
+      const flush = async () => {
+        if (sending || !queue) return;
+        sending = true;
+        while (queue > 0) {
+          queue--;
+          try {
+            const r = await fetch(`${API}/hit/${NS}/${KEY}`);
+            const d = await r.json();
+            if (typeof d.value === "number") { count = Math.max(count || 0, d.value); render(); }
+          } catch (e) {}
+        }
+        sending = false;
+      };
+
+      const heartUrl = I.assetUrl("heart");
+      const burst = (btn) => {
+        const r = btn.getBoundingClientRect();
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const n = reduce ? 3 : 9;
+        for (let i = 0; i < n; i++) {
+          const h = document.createElement("img");
+          h.src = heartUrl;
+          h.alt = "";
+          h.className = "love-particle";
+          const size = 14 + Math.random() * 16;
+          h.style.cssText = `left:${cx - size / 2}px;top:${cy - size / 2}px;width:${size}px;height:${size}px`;
+          document.body.append(h);
+          const dx = (Math.random() - 0.5) * 140, dy = -60 - Math.random() * 110, rot = (Math.random() - 0.5) * 70;
+          h.animate(
+            [
+              { transform: "translate(0,0) scale(0.4) rotate(0deg)", opacity: 1 },
+              { transform: `translate(${dx * 0.6}px,${dy * 0.7}px) scale(1.1) rotate(${rot / 2}deg)`, opacity: 1, offset: 0.5 },
+              { transform: `translate(${dx}px,${dy}px) scale(0.8) rotate(${rot}deg)`, opacity: 0 },
+            ],
+            { duration: 900 + Math.random() * 500, easing: "cubic-bezier(.16,1,.3,1)" }
+          ).onfinish = () => h.remove();
+        }
+        btn.querySelector("img")?.animate(
+          [{ transform: "scale(1)" }, { transform: "scale(1.45) rotate(-10deg)" }, { transform: "scale(0.9)" }, { transform: "scale(1)" }],
+          { duration: 500, easing: "cubic-bezier(.34,1.56,.64,1)" }
+        );
+      };
+
+      btns.forEach((btn) =>
+        btn.addEventListener("click", () => {
+          burst(btn);
+          const n = sentToday();
+          if (n >= DAILY_LIMIT) return toast("Suley felt all of that. Come back tomorrow to send more.");
+          markSent(n + 1);
+          if (count != null) { count++; render(); }
+          btns.forEach((b) => b.classList.add("loved"));
+          if (n === 0) toast("Love sent to Suley, thank you!");
+          queue++;
+          flush();
+        })
+      );
+      if (sentToday() > 0) btns.forEach((b) => b.classList.add("loved"));
+    })();
+
     /* ── Scroll reveal ───────────────────────────────── */
     const io = new IntersectionObserver(
       (entries) => entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } }),

@@ -733,3 +733,25 @@ img { display: block; max-width: 100%; }
 .yt.ready img { opacity: 0; transition: opacity 0.6s; }
 
 .music-btn { box-shadow: inset 0 0 0 1px var(--border); }
+
+/* ── Send love ─────────────────────────────────────────── */
+.love-btn {
+  display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px 0 8px; border-radius: 999px;
+  font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text);
+  background: #fff; box-shadow: inset 0 0 0 1px var(--border); transition: transform 0.35s var(--spring), box-shadow 0.25s, background 0.25s;
+}
+.love-btn img { width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(225, 29, 72, 0.3)); }
+.love-btn:hover { transform: translateY(-1px); box-shadow: inset 0 0 0 1px rgba(225, 29, 72, 0.35); background: #fff5f7; }
+.love-btn:active { transform: scale(0.92); }
+.love-btn.loved { box-shadow: inset 0 0 0 1px rgba(225, 29, 72, 0.4); background: #fff1f4; color: #be123c; }
+.love-big {
+  display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; height: 46px; padding: 0 18px 0 12px; border-radius: 999px;
+  font-size: 15px; font-weight: 500; color: #fff; background: rgba(244, 63, 94, 0.14); box-shadow: inset 0 0 0 1px rgba(244, 63, 94, 0.4);
+  transition: transform 0.4s var(--spring), background 0.25s;
+}
+.love-big img { width: 28px; height: 28px; object-fit: contain; }
+.love-big b { padding: 2px 9px; border-radius: 999px; font-size: 13px; background: rgba(255, 255, 255, 0.14); font-variant-numeric: tabular-nums; }
+.love-big:hover { transform: translateY(-2px) scale(1.02); background: rgba(244, 63, 94, 0.24); }
+.love-big:active { transform: scale(0.95); }
+.love-particle { position: fixed; z-index: 300; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(225, 29, 72, 0.35)); }
+@media (max-width: 734px) { .love-btn { padding: 0 9px 0 6px; } }
