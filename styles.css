@@ -650,7 +650,7 @@ img { display: block; max-width: 100%; }
 .music-btn:not(.on) .eq { opacity: 0.6; }
 
 /* Music button with a label so it's obvious */
-.music-btn { width: auto; gap: 8px; padding: 0 12px 0 10px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--border); }
+.music-btn { display: inline-flex; align-items: center; width: auto; gap: 8px; padding: 0 12px 0 10px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--border); }
 .music-label { font-size: 13px; font-weight: 500; }
 .music-btn.on { box-shadow: inset 0 0 0 1px rgba(59, 108, 255, 0.5); background: rgba(59, 108, 255, 0.1); }
 .music-btn.on .music-label::after { content: " on"; }
