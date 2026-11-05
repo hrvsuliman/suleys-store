@@ -97,49 +97,6 @@
         "star",
         "podium"
       ]
-    },
-    {
-      "id": "emote-bar-v1",
-      "name": "Emote Bar V1",
-      "category": "UI",
-      "robux": 2000,
-      "oldRobux": null,
-      "badge": "New",
-      "short": "A full emote framework your players can use right away.",
-      "description": "A complete emote system for your game. Players open the emote bar, pick an emote and it plays. Adding your own emotes is easy, it works on mobile, and I help you set it up. You also get free updates until the next version comes out.",
-      "features": [
-        "Full emote framework",
-        "Clean emote bar UI",
-        "Works on mobile",
-        "Easy to add your own emotes",
-        "Full support on Discord",
-        "Free updates until V2"
-      ],
-      "includes": [
-        "Model",
-        "Source code"
-      ],
-      "icon": "mic",
-      "iconImage": "",
-      "colors": [
-        "#f472b6",
-        "#8b5cf6"
-      ],
-      "cover": "",
-      "gallery": [],
-      "video": "",
-      "options": [
-        {
-          "label": "Gamepass",
-          "price": 3000
-        }
-      ],
-      "stickers": [
-        "mic",
-        "heart",
-        "star",
-        "prism"
-      ]
     }
   ],
   "reviews": [],
