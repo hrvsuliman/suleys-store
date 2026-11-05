@@ -96,22 +96,114 @@
     const F = S.hero?.featured === "" ? null : byId[S.hero?.featured] || products[0];
     const featured = $("#featured");
     if (F) {
-      featured.setAttribute("style", K.vars(F));
-      featured.innerHTML = `
-        <div class="feat-copy reveal">
-          <p class="feat-label">${esc(F.badge || "Featured")}</p>
-          <h2>${esc(F.name)}</h2>
-          <p>${esc(F.short)}</p>
-          <p class="feat-price">${K.priceHTML(F)}</p>
-          <div class="feat-actions">
-            <button class="btn btn-primary" data-open="${esc(F.id)}">Buy</button>
-            <button class="btn-link" data-open="${esc(F.id)}">Learn more <span class="chev">›</span></button>
-          </div>
-        </div>
-        <div class="feat-art${F.cover ? " has-cover" : ""}" style="${K.vars(F)}">${K.coverOrIcon(F)}</div>`;
+      buildShow(featured, [F, ...products.filter((p) => p !== F)]);
       scalers.push(featured);
     } else {
       featured.parentElement.remove();
+    }
+
+    /* ── Slideshow: one slide per video/image of each kit, 15s each ── */
+    function buildShow(root, kits) {
+      const SLIDE_MS = 15000;
+      const slides = [];
+      kits.forEach((p) => {
+        const media = K.media(p);
+        if (media.length) media.forEach((m) => slides.push({ p, m }));
+        else slides.push({ p, m: null });
+      });
+      const bg = ({ p, m }) => {
+        if (!m) return `<div class="slide-art" style="${K.vars(p)}">${K.scene(p)}</div>`;
+        if (m.type === "image") return `<img class="kb" src="${esc(m.src)}" alt="" />`;
+        if (m.type === "video") return `<video src="${esc(m.src)}" muted loop playsinline preload="metadata"></video>`;
+        return `<div class="yt" data-yt="${esc(m.id)}"><img src="https://i.ytimg.com/vi/${esc(m.id)}/maxresdefault.jpg" alt="" /></div>`;
+      };
+      root.classList.add("show");
+      root.style.setProperty("--slide-ms", SLIDE_MS + "ms");
+      root.innerHTML = `
+        <div class="slides">${slides.map((s, i) => `
+          <div class="slide" data-i="${i}" style="${K.vars(s.p)}" aria-hidden="${i !== 0}">
+            <div class="slide-bg">${bg(s)}</div>
+            <div class="slide-shade"></div>
+            <div class="slide-info">
+              <div class="slide-kit">${K.appIcon(s.p)}<span>${esc(s.p.badge || s.p.category || "Kit")}</span></div>
+              <h2>${esc(s.p.name)}</h2>
+              <p>${esc(s.p.short)}</p>
+              <p class="feat-price">${K.priceHTML(s.p)}</p>
+              <div class="feat-actions">
+                <button class="btn btn-primary" data-open="${esc(s.p.id)}">Buy</button>
+                <button class="btn-link" data-open="${esc(s.p.id)}">Learn more <span class="chev">›</span></button>
+              </div>
+            </div>
+          </div>`).join("")}
+        </div>
+        ${slides.length > 1 ? `
+        <div class="show-bar">
+          <div class="segs">${slides.map((s, i) => `<button class="seg" data-go="${i}" aria-label="Slide ${i + 1}: ${esc(s.p.name)}"><span></span></button>`).join("")}</div>
+          <div class="arrows">
+            <button class="arrow" data-step="-1" aria-label="Previous">${I.icon("down")}</button>
+            <button class="arrow" data-step="1" aria-label="Next">${I.icon("down")}</button>
+          </div>
+        </div>` : ""}`;
+
+      const slideEls = $$(".slide", root), segEls = $$(".seg", root);
+      let cur = -1;
+      const go = (n) => {
+        n = (n + slides.length) % slides.length;
+        if (n === cur) return;
+        const prev = slideEls[cur];
+        if (prev) {
+          prev.classList.remove("on");
+          prev.setAttribute("aria-hidden", "true");
+          $("video", prev)?.pause();
+          const yt = $(".yt", prev);
+          if (yt) setTimeout(() => { if (!prev.classList.contains("on")) $("iframe", yt)?.remove(); }, 900);
+        }
+        cur = n;
+        const el = slideEls[cur];
+        el.classList.add("on");
+        el.setAttribute("aria-hidden", "false");
+        const v = $("video", el);
+        if (v) { v.currentTime = 0; v.play().catch(() => {}); }
+        const yt = $(".yt", el);
+        if (yt && !$("iframe", yt)) {
+          const id = yt.dataset.yt;
+          yt.insertAdjacentHTML("beforeend", `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&rel=0&modestbranding=1&playsinline=1" title="${esc(slides[cur].p.name)} video" allow="autoplay; encrypted-media"></iframe>`);
+        }
+        segEls.forEach((s, i) => {
+          s.classList.toggle("done", i < cur);
+          s.classList.remove("on");
+          if (i === cur) { void s.offsetWidth; s.classList.add("on"); } // restart the fill animation
+        });
+      };
+      go(0);
+      if (slides.length < 2) return;
+
+      root.addEventListener("animationend", (e) => { if (e.target.parentElement?.classList.contains("on") && e.animationName === "segfill") go(cur + 1); });
+      root.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-go],[data-step]");
+        if (!b) return;
+        go(b.dataset.go != null ? +b.dataset.go : cur + +b.dataset.step);
+      });
+      // Pause while hovered, while a kit is open, or when the tab is hidden
+      const setPaused = () => root.classList.toggle("paused", root.matches(":hover") || document.hidden || $("#sheetWrap").classList.contains("open"));
+      root.addEventListener("pointerenter", setPaused);
+      root.addEventListener("pointerleave", () => setTimeout(setPaused));
+      document.addEventListener("visibilitychange", setPaused);
+      new MutationObserver(setPaused).observe($("#sheetWrap"), { attributes: true, attributeFilter: ["class"] });
+      // Swipe on phones
+      let sx = null;
+      root.addEventListener("touchstart", (e) => (sx = e.touches[0].clientX), { passive: true });
+      root.addEventListener("touchend", (e) => {
+        if (sx == null) return;
+        const dx = e.changedTouches[0].clientX - sx;
+        if (Math.abs(dx) > 50) go(cur + (dx < 0 ? 1 : -1));
+        sx = null;
+      });
+      addEventListener("keydown", (e) => {
+        if ($("#sheetWrap").classList.contains("open") || !root.matches(":hover")) return;
+        if (e.key === "ArrowRight") go(cur + 1);
+        if (e.key === "ArrowLeft") go(cur - 1);
+      });
     }
 
     /* ── Grid + tabs ─────────────────────────────────── */
