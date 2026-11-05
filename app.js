@@ -305,72 +305,139 @@
         .catch(() => {});
     }
 
-    /* ── Kit sheet with media gallery ────────────────── */
-    const wrap = $("#sheetWrap"), sheet = $("#sheet");
+    /* ── Kit page (opens over the store) ─────────────── */
+    const wrap = $("#sheetWrap"), sheet = $("#sheet"), frame = $("#sheetFrame");
     let lastFocus = null;
+    const paras = (t) => String(t || "").split(/\n\s*\n/).map((x) => `<p>${esc(x.trim())}</p>`).join("");
+    const listHTML = (arr) => `<ul class="list">${arr.map((f) => `<li>${I.icon("check")}${esc(f)}</li>`).join("")}</ul>`;
     const openSheet = (id, push = true) => {
       const p = byId[id];
       if (!p) return;
-      lastFocus = document.activeElement;
+      if (!wrap.classList.contains("open")) lastFocus = document.activeElement;
       const items = K.media(p);
+      const images = items.filter((m) => m.type === "image");
+      const others = products.filter((x) => x !== p);
       const stage = items.length
         ? `<div class="stage" id="stage">${K.mediaHTML(items[0], p)}</div>` +
           (items.length > 1 ? `<div class="thumbs" role="tablist">${items.map((m, i) => `<button class="thumb" role="tab" aria-selected="${i === 0}" aria-label="Media ${i + 1}" data-i="${i}">${K.thumbHTML(m, p)}</button>`).join("")}</div>` : "")
         : `<div class="sheet-art" style="${K.vars(p)}">${K.scene(p)}</div>`;
+      const buyBtns = (cls = "") => `
+        <a class="btn btn-primary ${cls}" href="${esc(invite)}" target="_blank" rel="noopener">${I.discord}Buy on Discord</a>
+        <a class="btn btn-ghost ${cls}" href="${esc(dmUrl)}" data-dm target="_blank" rel="noopener"><span>DM @${esc(S.discord.username)}</span></a>`;
+
+      frame.setAttribute("style", K.vars(p));
       sheet.innerHTML = `
-        <button class="close" data-close aria-label="Close">${I.icon("close")}</button>
-        <div class="sheet-media">${stage}</div>
-        <div class="sheet-info">
-          <div class="sheet-head">
-            <div class="sheet-icon" style="${K.vars(p)}">${K.appIcon(p)}</div>
+        <header class="kp-bar">
+          <button class="kp-back" data-close>${I.icon("down")}<span>All kits</span></button>
+          <div class="kp-bar-title">${K.appIcon(p)}<b>${esc(p.name)}</b><span class="kp-bar-price">${K.priceHTML(p)}</span></div>
+          <div class="kp-bar-actions">
+            <a class="btn btn-primary btn-sm" href="${esc(invite)}" target="_blank" rel="noopener">Buy on Discord</a>
+            <button class="close" data-close aria-label="Close">${I.icon("close")}</button>
+          </div>
+        </header>
+
+        <section class="kp-hero">
+          <div class="kp-name">
+            <div class="kp-icon">${K.appIcon(p)}</div>
             <div>
-              <span class="card-label">${esc(p.badge || p.category || "")}</span>
+              <span class="card-label">${esc([p.badge, p.category].filter(Boolean).join(" · "))}</span>
               <h2 id="sheetTitle">${esc(p.name)}</h2>
-              <p class="sheet-price">${K.priceHTML(p)}</p>
+              <p class="kp-short">${esc(p.short)}</p>
             </div>
           </div>
-          ${p.options?.length ? `<div><p class="sub">Ways to pay</p>${K.optionsHTML(p)}</div>` : ""}
-          <p class="desc">${esc(p.description || p.short)}</p>
-          <div class="sheet-cols">
-            ${p.features?.length ? `<div><p class="sub">Features</p><ul class="list">${p.features.map((f) => `<li>${I.icon("check")}${esc(f)}</li>`).join("")}</ul></div>` : ""}
-            ${p.includes?.length ? `<div><p class="sub">What you get</p><ul class="list">${p.includes.map((f) => `<li>${I.icon("check")}${esc(f)}</li>`).join("")}</ul></div>` : ""}
+          <div class="kp-buy">
+            <div class="kp-price">${K.priceHTML(p)}</div>
+            <div class="kp-buy-btns">${buyBtns()}</div>
+            <button class="kp-copy" data-copy>Copy order message</button>
           </div>
-          <div class="buy">
-            <p class="buy-note">Buy it on Discord. Open a ticket or DM <b>${esc(S.discord.username)}</b>.</p>
-            <a class="btn btn-primary btn-block" href="${esc(invite)}" target="_blank" rel="noopener">${I.discord}Buy on Discord · ${esc(K.priceText(p))}</a>
-            <div class="buy-links">
-              <a class="btn-link" href="${esc(dmUrl)}" data-dm target="_blank" rel="noopener">DM @${esc(S.discord.username)} <span class="chev">›</span></a>
-              <button class="btn-link" data-copy>Copy order message <span class="chev">›</span></button>
+        </section>
+
+        <section class="kp-main">
+          <div class="kp-media">${stage}</div>
+          <aside class="kp-side">
+            <div class="kp-box">
+              <p class="sub">Ways to pay</p>
+              ${p.options?.length ? K.optionsHTML(p) : `<ul class="pay-opts"><li><span>Robux</span>${K.priceHTML(p)}</li></ul>`}
             </div>
+            ${p.includes?.length ? `<div class="kp-box"><p class="sub">What you get</p>${listHTML(p.includes)}</div>` : ""}
+            <div class="kp-box kp-how">
+              <p class="sub">How to buy</p>
+              <p>Join the Discord and open a ticket, or DM <b>${esc(S.discord.username)}</b>. Tell me you want ${esc(p.name)}, pay, and I send it right after.</p>
+            </div>
+          </aside>
+        </section>
+
+        <section class="kp-about">
+          <div class="kp-desc"><h3>About this kit</h3>${paras(p.description || p.short)}</div>
+          ${p.features?.length ? `<div class="kp-feats"><h3>Features</h3>${listHTML(p.features)}</div>` : ""}
+        </section>
+
+        ${images.length > 1 ? `
+        <section class="kp-section">
+          <h3>Screenshots</h3>
+          <div class="kp-shots">${images.map((m) => `<button class="kp-shot" data-src="${esc(m.src)}">${K.mediaHTML(m, p)}</button>`).join("")}</div>
+        </section>` : ""}
+
+        ${others.length ? `
+        <section class="kp-section">
+          <h3>Other kits</h3>
+          <div class="grid kp-others">${others.slice(0, 4).map(K.cardHTML).join("")}</div>
+        </section>` : ""}
+
+        <footer class="kp-end">
+          <div>
+            <h3>Want ${esc(p.name)}?</h3>
+            <p>Hit me up on Discord and you'll have it in a few minutes.</p>
           </div>
-        </div>`;
-      $("[data-copy]", sheet).addEventListener("click", async () => {
+          <div class="kp-buy-btns">${buyBtns()}</div>
+        </footer>`;
+
+      $$(".kp-others .card", sheet).forEach((c) => c.classList.add("in"));
+      $$("[data-copy]", sheet).forEach((b) => b.addEventListener("click", async () => {
         if (await copy(`Yo! I want ${p.name} (${K.priceText(p)}).`)) toast("Copied! Paste it in Discord.");
-      });
-      const thumbs = $(".thumbs", sheet);
-      if (thumbs) thumbs.addEventListener("click", (e) => {
-        const b = e.target.closest(".thumb");
-        if (!b) return;
-        $$(".thumb", thumbs).forEach((t) => t.setAttribute("aria-selected", t === b));
-        const st = $("#stage");
+      }));
+      const showMedia = (i, autoplay = true) => {
+        const st = $("#stage", sheet);
+        if (!st) return;
+        $$(".thumb", sheet).forEach((t) => t.setAttribute("aria-selected", +t.dataset.i === i));
         st.classList.add("swap");
-        setTimeout(() => { st.innerHTML = K.mediaHTML(items[+b.dataset.i], p, true); st.classList.remove("swap"); }, 160);
-      });
-      wrap.classList.add("open");
-      wrap.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
-      lenis?.stop();
+        setTimeout(() => { st.innerHTML = K.mediaHTML(items[i], p, autoplay); st.classList.remove("swap"); }, 160);
+      };
+      sheet.onclick = (e) => {
+        const th = e.target.closest(".thumb");
+        if (th) return showMedia(+th.dataset.i);
+        const shot = e.target.closest(".kp-shot");
+        if (shot) {
+          showMedia(items.findIndex((m) => m.src === shot.dataset.src), false);
+          sheet.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+        const card = e.target.closest(".kp-others .card");
+        if (card) openSheet(card.dataset.id);
+      };
+
+      sheet.classList.remove("scrolled");
       sheet.scrollTop = 0;
-      setTimeout(() => $(".close", sheet).focus({ preventScroll: true }), 60);
+      if (!wrap.classList.contains("open")) {
+        wrap.classList.add("open");
+        wrap.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        lenis?.stop();
+        setTimeout(() => $(".kp-back", sheet)?.focus({ preventScroll: true }), 60);
+      }
       if (push) history.pushState({ kit: id }, "", `#kit-${id}`);
+      else if (location.hash !== `#kit-${id}`) history.replaceState({ kit: id }, "", `#kit-${id}`);
     };
+    // Compact bar with the buy button shows up once you scroll past the title
+    sheet.addEventListener("scroll", () => sheet.classList.toggle("scrolled", sheet.scrollTop > 180), { passive: true });
+
     const closeSheet = (fromPop = false) => {
       if (!wrap.classList.contains("open")) return;
       wrap.classList.remove("open");
       wrap.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
       lenis?.start();
-      setTimeout(() => { if (!wrap.classList.contains("open")) sheet.innerHTML = ""; }, 400); // stops videos
+      setTimeout(() => { if (!wrap.classList.contains("open")) sheet.innerHTML = ""; }, 450); // stops videos
       lastFocus?.focus?.({ preventScroll: true });
       if (!fromPop && location.hash.startsWith("#kit-")) history.replaceState(null, "", location.pathname + location.search);
     };
@@ -397,17 +464,18 @@
     const initial = location.hash.match(/^#kit-(.+)$/);
     if (initial) openSheet(initial[1], false);
 
+    // Swipe down from the top to close on phones
     let sy = null;
     sheet.addEventListener("touchstart", (e) => { sy = sheet.scrollTop <= 0 && !e.target.closest(".thumbs") ? e.touches[0].clientY : null; }, { passive: true });
     sheet.addEventListener("touchmove", (e) => {
       if (sy == null) return;
       const dy = e.touches[0].clientY - sy;
-      if (dy > 0) { sheet.style.transition = "none"; sheet.style.transform = `translateY(${dy}px)`; }
+      if (dy > 0) { frame.style.transition = "none"; frame.style.transform = `translateY(${dy}px)`; }
     }, { passive: true });
     sheet.addEventListener("touchend", (e) => {
       if (sy == null) return;
       const dy = e.changedTouches[0].clientY - sy;
-      sheet.style.transition = ""; sheet.style.transform = "";
+      frame.style.transition = ""; frame.style.transform = "";
       if (dy > 110) closeSheet();
       sy = null;
     });
