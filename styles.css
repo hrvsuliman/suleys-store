@@ -638,3 +638,16 @@ img { display: block; max-width: 100%; }
 .music-btn.on .eq i:nth-child(3) { animation-delay: -0.7s; animation-duration: 1.3s; }
 .music-btn.on .eq i:nth-child(4) { animation-delay: -0.2s; animation-duration: 1s; }
 @keyframes eq { 0%, 100% { height: 4px; } 50% { height: 16px; } }
+
+/* Phones: keep the floating icons in the strip above the title so they never cover text */
+@media (max-width: 734px) {
+  .floaters { height: 130px; }
+  .floater { --s: 44px !important; }
+  .floater:nth-child(n + 3) { display: none; }
+}
+/* Music button: resting bars at different heights so it reads as a sound icon, not "...." */
+.music-btn .eq i:nth-child(1) { height: 6px; }
+.music-btn .eq i:nth-child(2) { height: 11px; }
+.music-btn .eq i:nth-child(3) { height: 8px; }
+.music-btn .eq i:nth-child(4) { height: 13px; }
+.music-btn:not(.on) .eq { opacity: 0.6; }
