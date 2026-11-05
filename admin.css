@@ -168,3 +168,10 @@ body.admin { background: var(--band); min-height: 100vh; }
 .sticker-grid.small button { padding: 6px; border-radius: 10px; }
 .kit-thumb .app { --size: 36px; }
 .colors > span { width: 100%; font-weight: 500; }
+
+/* Music */
+.music-row { position: relative; display: flex; align-items: center; gap: 10px; }
+.music-row audio { flex: 1; height: 44px; border-radius: 12px; color-scheme: dark; }
+.music-row .remove { position: static; flex: none; }
+.music-marks { display: flex; gap: 8px; flex-wrap: wrap; }
+.field input[type="range"] { padding: 0; height: 28px; background: none; accent-color: var(--blue); }

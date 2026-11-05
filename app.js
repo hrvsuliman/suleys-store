@@ -480,6 +480,85 @@
       sy = null;
     });
 
+    /* ── Background music: quiet, fades in, can loop just a part, remembers on/off ── */
+    (() => {
+      const M = S.music || {};
+      const btn = $("#musicBtn");
+      if (!M.src || !btn) return;
+      btn.hidden = false;
+      const target = Math.min(1, Math.max(0, M.volume ?? 0.18));
+      const start = Math.max(0, +M.start || 0);
+      const end = +M.end > start ? +M.end : 0;
+      const audio = new Audio();
+      audio.src = M.src;
+      audio.preload = "none";
+      audio.loop = !end;
+      audio.volume = 0;
+      let wanted = true;
+      try { wanted = localStorage.getItem("music") !== "off"; } catch (e) {}
+      let fadeRaf = 0, ducked = false, started = false, looping = false;
+      const isOn = () => btn.classList.contains("on");
+      const level = () => target * (ducked ? 0.35 : 1);
+      // eased volume fade
+      const fadeTo = (v, ms, done) => {
+        cancelAnimationFrame(fadeRaf);
+        const from = audio.volume, t0 = performance.now();
+        const step = (t) => {
+          const k = Math.min(1, (t - t0) / ms);
+          audio.volume = Math.min(1, Math.max(0, from + (v - from) * (k * k * (3 - 2 * k))));
+          if (k < 1) fadeRaf = requestAnimationFrame(step); else done?.();
+        };
+        fadeRaf = requestAnimationFrame(step);
+      };
+      const setUI = (on) => {
+        btn.classList.toggle("on", on);
+        btn.setAttribute("aria-pressed", String(on));
+        btn.setAttribute("aria-label", on ? "Turn music off" : "Turn music on");
+      };
+      const play = () => {
+        if (!started) { audio.currentTime = start; started = true; }
+        audio.play().then(() => { setUI(true); fadeTo(level(), 2500); }).catch(() => setUI(false));
+      };
+      const stop = () => { setUI(false); fadeTo(0, 700, () => audio.pause()); };
+      setUI(false);
+
+      btn.addEventListener("click", () => {
+        wanted = !isOn();
+        try { localStorage.setItem("music", wanted ? "on" : "off"); } catch (e) {}
+        wanted ? play() : stop();
+      });
+      // Browsers only allow sound after the visitor interacts, so it starts on the first click, tap or key press.
+      const kick = (e) => {
+        if (e.target.closest?.("#musicBtn")) return;
+        removeEventListener("pointerdown", kick);
+        removeEventListener("keydown", kick);
+        if (wanted && audio.paused) play();
+      };
+      addEventListener("pointerdown", kick);
+      addEventListener("keydown", kick);
+
+      // Loop only the chosen part, with a fade at the seam
+      if (end) audio.addEventListener("timeupdate", () => {
+        if (looping || audio.currentTime < end - 1.2) return;
+        looping = true;
+        fadeTo(0, 1000, () => {
+          audio.currentTime = start;
+          looping = false;
+          if (isOn()) fadeTo(level(), 1500);
+        });
+      });
+      // Quieter while a kit page is open (so kit videos come through), silent when the tab is hidden
+      new MutationObserver(() => {
+        ducked = $("#sheetWrap").classList.contains("open");
+        if (isOn() && !audio.paused) fadeTo(level(), 600);
+      }).observe($("#sheetWrap"), { attributes: true, attributeFilter: ["class"] });
+      document.addEventListener("visibilitychange", () => {
+        if (!isOn()) return;
+        if (document.hidden) fadeTo(0, 400, () => audio.pause());
+        else audio.play().then(() => fadeTo(level(), 1200)).catch(() => {});
+      });
+    })();
+
     /* ── Scroll reveal ───────────────────────────────── */
     const io = new IntersectionObserver(
       (entries) => entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } }),

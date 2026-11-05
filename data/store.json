@@ -164,5 +164,11 @@
       "q": "Can I get a refund?",
       "a": "Since kits are files, I can’t take them back once they are sent. If something doesn’t work, I’ll fix it for you."
     }
-  ]
+  ],
+  "music": {
+    "src": "",
+    "volume": 0.18,
+    "start": 0,
+    "end": 0
+  }
 }

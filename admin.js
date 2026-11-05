@@ -76,6 +76,7 @@
     d.hero.banner ??= "";
     d.hero.featured ??= "";
     d.discord ??= { invite: "", username: "", userId: "" };
+    d.music ??= { src: "", volume: 0.18, start: 0, end: 0 };
     for (const k of ["products", "faq", "reviews", "perks", "payments"]) if (!Array.isArray(d[k])) d[k] = [];
     d.products.forEach(fixKit);
     return d;
@@ -135,6 +136,13 @@
     for (const f of files) {
       const isVid = f.type.startsWith("video/");
       const isImg = f.type.startsWith("image/");
+      const isAud = f.type.startsWith("audio/");
+      if (isAud && kind.includes("audio")) {
+        if (f.size > MAX_BYTES) { toast(`${f.name} is over 95 MB.`); continue; }
+        if (f.size > 8 * 1024 * 1024) toast("That's a big audio file. It works, but a shorter or smaller file loads faster.");
+        out.push({ path: addFile(f, extOf(f) || "mp3", opts.prefix), type: "audio" });
+        continue;
+      }
       if ((isVid && !kind.includes("video")) || (isImg && !kind.includes("image")) || (!isVid && !isImg)) {
         toast(`${f.name} isn't a supported ${kind.replace("|", " or ")} file.`);
         continue;
@@ -524,7 +532,7 @@
       </section>
       <section class="group">
         <h2>Floating stickers</h2>
-        <p class="group-sub">The icons floating around the top of the site. Up to 8.</p>
+        <p class="group-sub">The icons floating next to the title at the top of the site. Up to 6.</p>
         ${stickerGrid((d.hero.stickers ??= []), "hstk")}
       </section>
       <section class="group">
@@ -536,8 +544,29 @@
           ${dropZone("banner", "Image (2560 px wide is ideal) or MP4/WebM video, up to 95 MB.", "image/*,video/mp4,video/webm", false)}`}
       </section>
       <section class="group">
+        <h2>Background music</h2>
+        <p class="group-sub">Plays quietly in the background and fades in once a visitor clicks or taps anywhere. Visitors can turn it off with the button in the top bar. Only use music you have the rights to, because the file ends up in your public repo.</p>
+        ${d.music.src ? `
+          <div class="music-row">
+            <audio id="musicPreview" controls preload="metadata" src="${esc(resolve(d.music.src))}"></audio>
+            <button class="remove" type="button" data-rm-music aria-label="Remove music">${ic("close")}</button>
+          </div>
+          ${pending.has(d.music.src) ? '<span class="pending-tag">Uploads when you publish</span>' : ""}
+          <label class="field"><span>Volume <span class="hint" id="volLabel">${Math.round((d.music.volume ?? 0.18) * 100)}%</span></span>
+            <input type="range" min="0.03" max="0.6" step="0.01" data-path="music.volume" data-num value="${esc(d.music.volume ?? 0.18)}" /></label>
+          <div class="two">
+            <label class="field"><span>Loop from <span class="hint">(seconds)</span></span><input type="number" min="0" step="0.5" data-path="music.start" data-num value="${esc(d.music.start || 0)}" /></label>
+            <label class="field"><span>Loop until <span class="hint">(seconds, 0 = whole song)</span></span><input type="number" min="0" step="0.5" data-path="music.end" data-num value="${esc(d.music.end || 0)}" /></label>
+          </div>
+          <div class="music-marks">
+            <button class="btn btn-sm btn-ghost" type="button" data-mark="start">Set start to current time</button>
+            <button class="btn btn-sm btn-ghost" type="button" data-mark="end">Set end to current time</button>
+          </div>`
+        : dropZone("music", "MP3, M4A or OGG. Keep it small, under 5 MB is ideal.", "audio/*", false)}
+      </section>
+      <section class="group">
         <h2>Featured kit</h2>
-        <p class="group-sub">Shown big under the hero.</p>
+        <p class="group-sub">The first slide in the “Latest releases” slideshow.</p>
         <label class="field"><span>Kit</span><select data-path="hero.featured">
           <option value="" ${d.hero.featured ? "" : "selected"}>None (hide this section)</option>
           ${d.products.map((p) => `<option value="${esc(p.id)}" ${d.hero.featured === p.id ? "selected" : ""}>${esc(p.name || p.id)}</option>`).join("")}
@@ -558,7 +587,9 @@
     view().oninput = (e) => {
       const el = e.target;
       if (!el.dataset.path) return;
-      setPath(d, el.dataset.path, el.dataset.list ? el.value.split(",").map((s) => s.trim()).filter(Boolean) : el.value);
+      const val = el.dataset.list ? el.value.split(",").map((s) => s.trim()).filter(Boolean) : el.dataset.num !== undefined ? Math.max(0, parseFloat(el.value) || 0) : el.value;
+      setPath(d, el.dataset.path, val);
+      if (el.dataset.path === "music.volume") { $("#volLabel").textContent = `${Math.round(val * 100)}%`; const a = $("#musicPreview"); if (a) a.volume = val; }
       if (el.dataset.path === "name") $("#adminBrand").textContent = `${el.value || "Store"} Admin`;
       markDirty();
     };
@@ -575,11 +606,30 @@
     };
     view().onclick = (e) => {
       const s = e.target.closest("[data-hstk]");
-      if (s) { toggleSticker(d.hero.stickers, s.dataset.hstk, 8); const y = scrollY; renderStore(); scrollTo(0, y); markDirty(); return; }
+      if (s) { toggleSticker(d.hero.stickers, s.dataset.hstk, 6); const y = scrollY; renderStore(); scrollTo(0, y); markDirty(); return; }
+      if (e.target.closest("[data-rm-music]")) { d.music.src = ""; const y = scrollY; renderStore(); scrollTo(0, y); markDirty(); return; }
+      const mk = e.target.closest("[data-mark]");
+      if (mk) {
+        const a = $("#musicPreview");
+        const t = Math.round((a?.currentTime || 0) * 2) / 2;
+        d.music[mk.dataset.mark] = t;
+        $(`[data-path="music.${mk.dataset.mark}"]`).value = t;
+        toast(`Loop ${mk.dataset.mark} set to ${t}s.`);
+        markDirty();
+        return;
+      }
       const b = e.target.closest("[data-rm]");
       if (b) { d.hero.banner = ""; renderStore(); markDirty(); }
     };
     wireDrops({
+      music: async (files) => {
+        const y = scrollY;
+        const [f] = await takeFiles(files.slice(0, 1), "audio", { prefix: "music" });
+        if (f) d.music.src = f.path;
+        renderStore();
+        scrollTo(0, y);
+        markDirty();
+      },
       banner: async (files) => {
         const y = scrollY;
         const [f] = await takeFiles(files.slice(0, 1), "image|video", { prefix: "banner", max: 2560 });
