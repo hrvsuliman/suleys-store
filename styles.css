@@ -764,3 +764,25 @@ img { display: block; max-width: 100%; }
 .foot-views { display: flex; align-items: center; gap: 6px; }
 .foot-views [data-views] { font-weight: 600; color: var(--text); }
 @media (max-width: 900px) { .views-pill { display: none; } }
+
+
+/* ═══ Performance ═══ */
+/* reveal without blur (blurring many elements while scrolling is expensive) */
+.reveal { filter: none !important; transition: opacity 0.8s var(--ease), transform 0.9s var(--ease); }
+.slide-info > * { filter: none !important; }
+.hero-title .w > span { filter: none !important; }
+/* far floating icons: just fainter, no live blur */
+.floater.far { filter: none; opacity: 0.45; }
+.floater { transition: transform 0.6s var(--ease); will-change: transform; }
+/* card stickers only bob while you hover the card */
+.card .fl .stk { animation-play-state: paused; }
+.card:hover .fl .stk { animation-play-state: running; }
+/* kit page: solid top bar instead of blurring the content scrolling under it */
+.kp-bar { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(255, 255, 255, 0.97); }
+/* kit page glow: rotate a pre-drawn ring on the GPU instead of repainting a blurred gradient every frame */
+.sheet-glow { overflow: hidden; background: none; animation: none; }
+.sheet-glow::before { content: ""; position: absolute; left: 50%; top: 50%; width: 160%; aspect-ratio: 1; inset: auto; border-radius: 0; filter: none; opacity: 1; translate: -50% -50%; background: conic-gradient(var(--c1), transparent 22%, var(--c2) 45%, transparent 65%, var(--c1)); animation: glowturn 7s linear infinite; }
+@keyframes glowturn { to { transform: rotate(360deg); } }
+.sheet-frame { box-shadow: 0 0 60px -10px color-mix(in srgb, var(--c2) 45%, transparent); border-radius: 30px; }
+/* don't render far-away sections until they're close */
+#how, #faq, #reviews, .perks { content-visibility: auto; contain-intrinsic-size: auto 700px; }

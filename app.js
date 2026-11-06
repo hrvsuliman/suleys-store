@@ -14,12 +14,7 @@
       document.body.insertAdjacentHTML("afterbegin", '<p style="padding:20px;text-align:center">The store couldn\'t load. Refresh to try again.</p>');
     });
 
-  let lenis = null;
-  if (window.Lenis && !reduce) {
-    lenis = new window.Lenis({ lerp: 0.09, smoothWheel: true });
-    const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); };
-    requestAnimationFrame(raf);
-  }
+  const lenis = null; // smooth-scroll library removed for performance, native scrolling is smoother
   // Smooth anchor jumps
   document.addEventListener("click", (e) => {
     const a = e.target.closest('a[href^="#"]');
@@ -28,8 +23,8 @@
     const el = id === "#top" ? document.body : document.querySelector(id);
     if (!el) return;
     e.preventDefault();
-    if (lenis) lenis.scrollTo(id === "#top" ? 0 : el, { offset: -60, duration: 1.4 });
-    else el.scrollIntoView({ behavior: "smooth" });
+    if (id === "#top") scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    else scrollTo({ top: el.getBoundingClientRect().top + scrollY - 60, behavior: reduce ? "auto" : "smooth" });
   });
 
   /* ── Video helpers (YouTube background embeds + muted autoplay) ── */
@@ -104,12 +99,21 @@
     floatEls.forEach((el) => { const d = +el.dataset.depth; el.classList.add(d < 0.6 ? "far" : d < 0.9 ? "mid" : "near"); });
     if (!reduce) {
       let mx = 0, my = 0;
-      const place = () => floatEls.forEach((el) => {
-        const d = +el.dataset.depth;
-        el.style.translate = `${mx * d * 30}px ${my * d * 30 - scrollY * d * 0.25}px`;
-      });
-      addEventListener("pointermove", (e) => { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; requestAnimationFrame(place); }, { passive: true });
-      addEventListener("scroll", () => requestAnimationFrame(place), { passive: true });
+      let queued = false, heroVisible = true;
+      const place = () => {
+        queued = false;
+        floatEls.forEach((el) => {
+          const d = +el.dataset.depth;
+          el.style.transform = `translate3d(${(mx * d * 30).toFixed(1)}px, ${(my * d * 30).toFixed(1)}px, 0)`;
+        });
+      };
+      new IntersectionObserver(([en]) => (heroVisible = en.isIntersecting)).observe(floaters);
+      if (matchMedia("(hover: hover)").matches)
+        addEventListener("pointermove", (e) => {
+          if (!heroVisible) return;
+          mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5;
+          if (!queued) { queued = true; requestAnimationFrame(place); }
+        }, { passive: true });
     }
 
     /* ── Hero banner (image, video file or YouTube) ──── */
@@ -203,7 +207,7 @@
         const v = $("video", el);
         if (v) { v.currentTime = 0; playMuted(v); }
         const yt = $(".yt", el);
-        if (yt && !$("iframe", yt)) {
+        if (yt && !$("iframe", yt) && showNear) {
           const id = yt.dataset.yt;
           yt.append(ytIframe(id, `${slides[cur].p.name} video`, () => yt.classList.add("ready")));
         }
@@ -214,7 +218,15 @@
           s.style.setProperty("--prog", i < cur ? 1 : 0);
         });
       };
+      let showNear = false;
       go(0);
+      // Load heavy video only when the slideshow gets close to the screen
+      new IntersectionObserver(([en]) => {
+        if (!en.isIntersecting || showNear) return;
+        showNear = true;
+        const yt = $(".slide.on .yt", root);
+        if (yt && !$("iframe", yt)) yt.append(ytIframe(yt.dataset.yt, "Kit video", () => yt.classList.add("ready")));
+      }, { rootMargin: "300px 0px" }).observe(root);
       // Play the current video when the slideshow is on screen, pause it when you scroll away
       new IntersectionObserver(([en]) => {
         const on = $(".slide.on", root);
@@ -766,11 +778,14 @@
       wrap(h);
       return { h, words: $$(".hw", h) };
     });
-    const lightHeads = () => heads.forEach(({ h, words }) => {
-      const r = h.getBoundingClientRect();
+    const lightHeads = () => heads.forEach((hd) => {
+      const r = hd.h.getBoundingClientRect();
+      if (r.bottom < -200 || r.top > innerHeight + 200) return;
       const f = Math.min(1, Math.max(0, (innerHeight * 0.88 - r.top) / (innerHeight * 0.4)));
-      const n = Math.round(f * words.length);
-      words.forEach((w, i) => w.classList.toggle("lit", i < n));
+      const n = Math.round(f * hd.words.length);
+      if (n === hd.n) return;
+      hd.n = n;
+      hd.words.forEach((w, i) => w.classList.toggle("lit", i < n));
     });
 
     /* ── Spotlight that follows the cursor on cards ─────── */
